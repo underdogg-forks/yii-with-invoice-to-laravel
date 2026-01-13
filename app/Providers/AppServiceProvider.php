@@ -71,9 +71,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(InvoiceService::class);
         $this->app->singleton(PaymentPeppolService::class);
         $this->app->singleton(PdfService::class);
+        $this->app->singleton(PeppolService::class);
         $this->app->singleton(ProductService::class);
         $this->app->singleton(QuoteService::class);
         $this->app->singleton(SalesOrderService::class);
+        $this->app->singleton(StoreCoveService::class);
         $this->app->singleton(TaxRateService::class);
         $this->app->singleton(UblXmlService::class);
         $this->app->singleton(UnitPeppolService::class);

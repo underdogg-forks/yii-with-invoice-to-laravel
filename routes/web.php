@@ -11,6 +11,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CustomFieldController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\SalesOrderController;
+use App\Http\Controllers\DocumentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -90,4 +91,18 @@ Route::middleware(['auth', 'permission:manage-quotes'])->group(function () {
     Route::post('/sales-orders/{id}/complete', [SalesOrderController::class, 'complete'])->name('sales-orders.complete');
     Route::post('/sales-orders/{id}/cancel', [SalesOrderController::class, 'cancel'])->name('sales-orders.cancel');
     Route::post('/sales-orders/{id}/convert-to-invoice', [SalesOrderController::class, 'convertToInvoice'])->name('sales-orders.convert-to-invoice');
+});
+
+// Document (PDF/XML) Routes - Protected with auth middleware
+Route::middleware('auth')->group(function () {
+    // Invoice documents
+    Route::get('/invoices/{id}/pdf', [DocumentController::class, 'invoicePdf'])->name('invoices.pdf');
+    Route::get('/invoices/{id}/xml', [DocumentController::class, 'invoiceXml'])->name('invoices.xml');
+    Route::post('/invoices/{id}/send-peppol', [DocumentController::class, 'sendInvoicePeppol'])->name('invoices.send-peppol');
+    
+    // Quote documents
+    Route::get('/quotes/{id}/pdf', [DocumentController::class, 'quotePdf'])->name('quotes.pdf');
+    
+    // Sales Order documents
+    Route::get('/sales-orders/{id}/pdf', [DocumentController::class, 'salesOrderPdf'])->name('sales-orders.pdf');
 });
