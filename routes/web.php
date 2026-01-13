@@ -12,6 +12,7 @@ use App\Http\Controllers\CustomFieldController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\SalesOrderController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\WebhookController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -106,3 +107,6 @@ Route::middleware('auth')->group(function () {
     // Sales Order documents
     Route::get('/sales-orders/{id}/pdf', [DocumentController::class, 'salesOrderPdf'])->name('sales-orders.pdf');
 });
+
+// Webhook Routes (no auth middleware - webhooks use signature verification)
+Route::post('/webhooks/storecove', [WebhookController::class, 'storecove'])->name('webhooks.storecove');

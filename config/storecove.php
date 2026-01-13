@@ -17,6 +17,8 @@ return [
 
     'webhook_url' => env('STORECOVE_WEBHOOK_URL', ''),
 
+    'webhook_secret' => env('STORECOVE_WEBHOOK_SECRET', ''),
+
     'timeout' => env('STORECOVE_TIMEOUT', 30),
 
     /*
