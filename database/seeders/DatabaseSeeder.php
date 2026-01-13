@@ -16,6 +16,10 @@ class DatabaseSeeder extends Seeder
             ClientPeppolSeeder::class,
             UnitPeppolSeeder::class,
             PaymentPeppolSeeder::class,
+            InvoiceStatusSeeder::class,
+            InvoiceNumberingSeeder::class,
+            TaxRateSeeder::class,
+            ProductFamilySeeder::class,
         ]);
     }
 }

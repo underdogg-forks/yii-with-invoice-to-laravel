@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientPeppolController;
 use App\Http\Controllers\PaymentPeppolController;
 use App\Http\Controllers\UnitPeppolController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\TaxRateController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -38,4 +41,21 @@ Route::middleware('auth')->prefix('unitpeppol')->name('unitpeppol.')->group(func
     Route::get('/edit/{id}', [UnitPeppolController::class, 'edit'])->name('edit');
     Route::post('/edit/{id}', [UnitPeppolController::class, 'update'])->name('update');
     Route::delete('/delete/{id}', [UnitPeppolController::class, 'delete'])->name('delete');
+});
+
+// Invoice Routes - Protected with auth and permission middleware
+Route::middleware(['auth', 'permission:manage-invoices'])->group(function () {
+    Route::resource('invoices', InvoiceController::class);
+    Route::post('/invoices/{id}/status', [InvoiceController::class, 'changeStatus'])->name('invoices.change-status');
+    Route::post('/invoices/{id}/credit', [InvoiceController::class, 'createCredit'])->name('invoices.create-credit');
+});
+
+// Product Routes - Protected with auth and permission middleware
+Route::middleware(['auth', 'permission:manage-products'])->group(function () {
+    Route::resource('products', ProductController::class)->except(['show']);
+});
+
+// Tax Rate Routes - Protected with auth and permission middleware
+Route::middleware(['auth', 'permission:manage-invoices'])->group(function () {
+    Route::resource('tax-rates', TaxRateController::class)->except(['show']);
 });
