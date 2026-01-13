@@ -61,8 +61,8 @@ class UserSeeder extends Seeder
         $testUser->assignRole('user');
 
         // Create additional random users
-        User::factory()->count(5)->create()->each(function ($user) use ($user) {
-            $user->assignRole('user');
+        User::factory()->count(5)->create()->each(function ($randomUser) {
+            $randomUser->assignRole('user');
         });
     }
 }
