@@ -7,6 +7,8 @@ use App\Http\Controllers\UnitPeppolController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TaxRateController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\CustomFieldController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -41,6 +43,16 @@ Route::middleware('auth')->prefix('unitpeppol')->name('unitpeppol.')->group(func
     Route::get('/edit/{id}', [UnitPeppolController::class, 'edit'])->name('edit');
     Route::post('/edit/{id}', [UnitPeppolController::class, 'update'])->name('update');
     Route::delete('/delete/{id}', [UnitPeppolController::class, 'delete'])->name('delete');
+});
+
+// Client Routes - Protected with auth and permission middleware
+Route::middleware(['auth', 'permission:manage-clients'])->group(function () {
+    Route::resource('clients', ClientController::class);
+});
+
+// Custom Field Routes - Protected with auth and permission middleware
+Route::middleware(['auth', 'permission:manage-settings'])->group(function () {
+    Route::resource('custom-fields', CustomFieldController::class)->except(['show']);
 });
 
 // Invoice Routes - Protected with auth and permission middleware
