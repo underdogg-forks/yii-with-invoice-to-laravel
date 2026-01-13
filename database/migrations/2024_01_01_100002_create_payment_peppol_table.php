@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('payment_peppol', function (Blueprint $table) {
             $table->id();
             $table->foreignId('inv_id')->nullable()->constrained('invoices')->onDelete('cascade');
-            $table->integer('auto_reference');
+            $table->integer('auto_reference')->nullable();
             $table->string('provider', 20)->default('');
             $table->timestamps();
         });

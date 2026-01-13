@@ -9,8 +9,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Peppol Client Routes
-Route::prefix('clientpeppol')->name('clientpeppol.')->group(function () {
+// Peppol Client Routes - Protected with auth middleware
+Route::middleware('auth')->prefix('clientpeppol')->name('clientpeppol.')->group(function () {
     Route::get('/', [ClientPeppolController::class, 'index'])->name('index');
     Route::get('/add/{client_id}', [ClientPeppolController::class, 'add'])->name('add');
     Route::post('/add/{client_id}', [ClientPeppolController::class, 'store'])->name('store');
@@ -20,8 +20,8 @@ Route::prefix('clientpeppol')->name('clientpeppol.')->group(function () {
     Route::delete('/delete/{id}', [ClientPeppolController::class, 'delete'])->name('delete');
 });
 
-// Peppol Payment Routes
-Route::prefix('paymentpeppol')->name('paymentpeppol.')->group(function () {
+// Peppol Payment Routes - Protected with auth middleware
+Route::middleware('auth')->prefix('paymentpeppol')->name('paymentpeppol.')->group(function () {
     Route::get('/', [PaymentPeppolController::class, 'index'])->name('index');
     Route::get('/add/{inv_id}', [PaymentPeppolController::class, 'add'])->name('add');
     Route::post('/add/{inv_id}', [PaymentPeppolController::class, 'store'])->name('store');
@@ -30,8 +30,8 @@ Route::prefix('paymentpeppol')->name('paymentpeppol.')->group(function () {
     Route::delete('/delete/{id}', [PaymentPeppolController::class, 'delete'])->name('delete');
 });
 
-// Peppol Unit Routes
-Route::prefix('unitpeppol')->name('unitpeppol.')->group(function () {
+// Peppol Unit Routes - Protected with auth middleware
+Route::middleware('auth')->prefix('unitpeppol')->name('unitpeppol.')->group(function () {
     Route::get('/', [UnitPeppolController::class, 'index'])->name('index');
     Route::get('/add/{unit_id}', [UnitPeppolController::class, 'add'])->name('add');
     Route::post('/add/{unit_id}', [UnitPeppolController::class, 'store'])->name('store');

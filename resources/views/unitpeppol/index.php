@@ -6,7 +6,7 @@ ob_start();
 ?>
 <h1>Unit Peppol Records</h1>
 
-<a href="/unitpeppol/add/1" class="btn btn-primary">Add New Unit Peppol</a>
+<a href="<?= route('unitpeppol.add', ['unit_id' => 1]) ?>" class="btn btn-primary">Add New Unit Peppol</a>
 
 <table>
     <thead>
@@ -31,8 +31,8 @@ ob_start();
                     <td><?= htmlspecialchars($unitPeppol->code) ?></td>
                     <td><?= htmlspecialchars($unitPeppol->name) ?></td>
                     <td>
-                        <a href="/unitpeppol/edit/<?= $unitPeppol->id ?>" class="btn btn-primary">Edit</a>
-                        <form method="POST" action="/unitpeppol/delete/<?= $unitPeppol->id ?>" style="display:inline;">
+                        <a href="<?= route('unitpeppol.edit', ['id' => $unitPeppol->id]) ?>" class="btn btn-primary">Edit</a>
+                        <form method="POST" action="<?= route('unitpeppol.delete', ['id' => $unitPeppol->id]) ?>" style="display:inline;">
                             <input type="hidden" name="_method" value="DELETE">
                             <input type="hidden" name="_token" value="<?= csrf_token() ?>">
                             <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>

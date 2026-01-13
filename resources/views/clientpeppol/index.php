@@ -6,7 +6,7 @@ ob_start();
 ?>
 <h1>Client Peppol Records</h1>
 
-<a href="/clientpeppol/add/1" class="btn btn-primary">Add New Client Peppol</a>
+<a href="<?= route('clientpeppol.add', ['client_id' => 1]) ?>" class="btn btn-primary">Add New Client Peppol</a>
 
 <table>
     <thead>
@@ -31,9 +31,9 @@ ob_start();
                     <td><?= htmlspecialchars($clientPeppol->endpointid) ?></td>
                     <td><?= htmlspecialchars($clientPeppol->buyer_reference) ?></td>
                     <td>
-                        <a href="/clientpeppol/view/<?= $clientPeppol->id ?>" class="btn btn-secondary">View</a>
-                        <a href="/clientpeppol/edit/<?= $clientPeppol->id ?>" class="btn btn-primary">Edit</a>
-                        <form method="POST" action="/clientpeppol/delete/<?= $clientPeppol->id ?>" style="display:inline;">
+                        <a href="<?= route('clientpeppol.view', ['id' => $clientPeppol->id]) ?>" class="btn btn-secondary">View</a>
+                        <a href="<?= route('clientpeppol.edit', ['id' => $clientPeppol->id]) ?>" class="btn btn-primary">Edit</a>
+                        <form method="POST" action="<?= route('clientpeppol.delete', ['id' => $clientPeppol->id]) ?>" style="display:inline;">
                             <input type="hidden" name="_method" value="DELETE">
                             <input type="hidden" name="_token" value="<?= csrf_token() ?>">
                             <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
