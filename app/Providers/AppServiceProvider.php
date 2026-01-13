@@ -7,11 +7,21 @@ use App\Repositories\ClientPeppolRepository;
 use App\Repositories\PaymentPeppolRepository;
 use App\Repositories\UnitPeppolRepository;
 use App\Repositories\UserRepository;
+use App\Repositories\InvoiceRepository;
+use App\Repositories\InvoiceItemRepository;
+use App\Repositories\InvoiceAmountRepository;
+use App\Repositories\ProductRepository;
+use App\Repositories\TaxRateRepository;
 use App\Services\ClientPeppolService;
 use App\Services\PaymentPeppolService;
 use App\Services\UnitPeppolService;
 use App\Services\UserService;
 use App\Services\AuthService;
+use App\Services\InvoiceService;
+use App\Services\InvoiceItemService;
+use App\Services\InvoiceAmountService;
+use App\Services\ProductService;
+use App\Services\TaxRateService;
 use PragmaRX\Google2FA\Google2FA;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,6 +36,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(PaymentPeppolRepository::class);
         $this->app->singleton(UnitPeppolRepository::class);
         $this->app->singleton(UserRepository::class);
+        $this->app->singleton(InvoiceRepository::class);
+        $this->app->singleton(InvoiceItemRepository::class);
+        $this->app->singleton(InvoiceAmountRepository::class);
+        $this->app->singleton(ProductRepository::class);
+        $this->app->singleton(TaxRateRepository::class);
 
         // Register Google2FA
         $this->app->singleton(Google2FA::class, function () {
@@ -38,6 +53,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(UnitPeppolService::class);
         $this->app->singleton(UserService::class);
         $this->app->singleton(AuthService::class);
+        $this->app->singleton(InvoiceAmountService::class);
+        $this->app->singleton(InvoiceItemService::class);
+        $this->app->singleton(InvoiceService::class);
+        $this->app->singleton(ProductService::class);
+        $this->app->singleton(TaxRateService::class);
     }
 
     /**
