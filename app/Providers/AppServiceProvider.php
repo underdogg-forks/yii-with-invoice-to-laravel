@@ -12,6 +12,8 @@ use App\Repositories\InvoiceItemRepository;
 use App\Repositories\InvoiceAmountRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\TaxRateRepository;
+use App\Repositories\ClientRepository;
+use App\Repositories\CustomFieldRepository;
 use App\Services\ClientPeppolService;
 use App\Services\PaymentPeppolService;
 use App\Services\UnitPeppolService;
@@ -22,6 +24,8 @@ use App\Services\InvoiceItemService;
 use App\Services\InvoiceAmountService;
 use App\Services\ProductService;
 use App\Services\TaxRateService;
+use App\Services\ClientService;
+use App\Services\CustomFieldService;
 use PragmaRX\Google2FA\Google2FA;
 
 class AppServiceProvider extends ServiceProvider
@@ -41,6 +45,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(InvoiceAmountRepository::class);
         $this->app->singleton(ProductRepository::class);
         $this->app->singleton(TaxRateRepository::class);
+        $this->app->singleton(ClientRepository::class);
+        $this->app->singleton(CustomFieldRepository::class);
 
         // Register Google2FA
         $this->app->singleton(Google2FA::class, function () {
@@ -58,6 +64,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(InvoiceService::class);
         $this->app->singleton(ProductService::class);
         $this->app->singleton(TaxRateService::class);
+        $this->app->singleton(ClientService::class);
+        $this->app->singleton(CustomFieldService::class);
     }
 
     /**
