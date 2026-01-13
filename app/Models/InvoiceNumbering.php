@@ -31,19 +31,30 @@ class InvoiceNumbering extends Model
 
     /**
      * Generate next invoice number for this numbering scheme
+     * Uses DB transaction with row-level locking to prevent race conditions
      */
     public function generateNextNumber(): string
     {
-        $number = str_pad((string) $this->next_id, $this->left_pad, '0', STR_PAD_LEFT);
-        
-        if ($this->identifier_format) {
-            $number = str_replace('{NUMBER}', $number, $this->identifier_format);
-            $number = str_replace('{YEAR}', date('Y'), $number);
-            $number = str_replace('{MONTH}', date('m'), $number);
-        }
-        
-        $this->increment('next_id');
-        
-        return $number;
+        return \DB::transaction(function () {
+            // Lock the row for update to prevent concurrent access
+            $numbering = self::where('id', $this->id)->lockForUpdate()->first();
+            
+            // Generate the number using the locked instance
+            $number = str_pad((string) $numbering->next_id, $numbering->left_pad, '0', STR_PAD_LEFT);
+            
+            if ($numbering->identifier_format) {
+                $number = str_replace('{NUMBER}', $number, $numbering->identifier_format);
+                $number = str_replace('{YEAR}', date('Y'), $number);
+                $number = str_replace('{MONTH}', date('m'), $number);
+            }
+            
+            // Increment the next_id within the transaction
+            $numbering->increment('next_id');
+            
+            // Refresh current model instance
+            $this->refresh();
+            
+            return $number;
+        });
     }
 }
