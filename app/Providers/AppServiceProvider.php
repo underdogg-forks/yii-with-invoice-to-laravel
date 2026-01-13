@@ -30,6 +30,8 @@ use App\Services\ClientService;
 use App\Services\CustomFieldService;
 use App\Services\QuoteService;
 use App\Services\SalesOrderService;
+use App\Services\PdfService;
+use App\Services\UblXmlService;
 use PragmaRX\Google2FA\Google2FA;
 
 class AppServiceProvider extends ServiceProvider
@@ -68,10 +70,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(InvoiceItemService::class);
         $this->app->singleton(InvoiceService::class);
         $this->app->singleton(PaymentPeppolService::class);
+        $this->app->singleton(PdfService::class);
         $this->app->singleton(ProductService::class);
         $this->app->singleton(QuoteService::class);
         $this->app->singleton(SalesOrderService::class);
         $this->app->singleton(TaxRateService::class);
+        $this->app->singleton(UblXmlService::class);
         $this->app->singleton(UnitPeppolService::class);
         $this->app->singleton(UserService::class);
     }
