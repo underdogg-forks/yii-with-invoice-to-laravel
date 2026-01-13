@@ -21,6 +21,10 @@ class DatabaseSeeder extends Seeder
             InvoiceNumberingSeeder::class,
             TaxRateSeeder::class,
             ProductFamilySeeder::class,
+            QuoteStatusSeeder::class,
+            SalesOrderStatusSeeder::class,
+            QuoteSeeder::class,
+            SalesOrderSeeder::class,
         ]);
     }
 }

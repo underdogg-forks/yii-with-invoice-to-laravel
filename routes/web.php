@@ -9,6 +9,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TaxRateController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CustomFieldController;
+use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\SalesOrderController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -70,4 +72,22 @@ Route::middleware(['auth', 'permission:manage-products'])->group(function () {
 // Tax Rate Routes - Protected with auth and permission middleware
 Route::middleware(['auth', 'permission:manage-invoices'])->group(function () {
     Route::resource('tax-rates', TaxRateController::class)->except(['show']);
+});
+
+// Quote Routes - Protected with auth and permission middleware
+Route::middleware(['auth', 'permission:manage-quotes'])->group(function () {
+    Route::resource('quotes', QuoteController::class);
+    Route::post('/quotes/{id}/send', [QuoteController::class, 'send'])->name('quotes.send');
+    Route::post('/quotes/{id}/approve', [QuoteController::class, 'approve'])->name('quotes.approve');
+    Route::post('/quotes/{id}/reject', [QuoteController::class, 'reject'])->name('quotes.reject');
+    Route::post('/quotes/{id}/convert-to-sales-order', [QuoteController::class, 'convertToSalesOrder'])->name('quotes.convert-to-sales-order');
+});
+
+// Sales Order Routes - Protected with auth and permission middleware
+Route::middleware(['auth', 'permission:manage-quotes'])->group(function () {
+    Route::resource('sales-orders', SalesOrderController::class);
+    Route::post('/sales-orders/{id}/confirm', [SalesOrderController::class, 'confirm'])->name('sales-orders.confirm');
+    Route::post('/sales-orders/{id}/complete', [SalesOrderController::class, 'complete'])->name('sales-orders.complete');
+    Route::post('/sales-orders/{id}/cancel', [SalesOrderController::class, 'cancel'])->name('sales-orders.cancel');
+    Route::post('/sales-orders/{id}/convert-to-invoice', [SalesOrderController::class, 'convertToInvoice'])->name('sales-orders.convert-to-invoice');
 });
