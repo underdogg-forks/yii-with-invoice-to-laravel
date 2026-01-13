@@ -14,8 +14,8 @@ return new class extends Migration
             // Add all invoice fields
             $table->string('number', 100)->nullable()->after('id');
             $table->foreignId('client_id')->after('number')->constrained()->onDelete('cascade');
-            $table->foreignId('group_id')->after('client_id')->constrained('invoice_groups')->onDelete('cascade');
-            $table->foreignId('status_id')->after('group_id')->default(1)->constrained('invoice_statuses');
+            $table->foreignId('numbering_id')->after('client_id')->constrained('invoice_numbering')->onDelete('cascade');
+            $table->foreignId('status_id')->after('numbering_id')->default(1)->constrained('invoice_statuses');
             
             // Dates
             $table->date('date_created')->nullable();
@@ -62,7 +62,7 @@ return new class extends Migration
     {
         Schema::table('invoices', function (Blueprint $table) {
             $table->dropColumn([
-                'number', 'group_id', 'status_id',
+                'number', 'numbering_id', 'status_id',
                 'date_created', 'date_modified', 'date_supplied', 'date_due',
                 'date_tax_point', 'date_paid_off',
                 'quote_id', 'so_id', 'creditinvoice_parent_id',

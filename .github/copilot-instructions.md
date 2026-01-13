@@ -44,6 +44,47 @@ When creating new features:
 8. **Write Tests**: Comprehensive coverage with it_* methods
 9. **Add Routes**: With appropriate middleware (auth, throttle)
 
+### Naming Conventions
+
+#### Invoice Numbering
+- **Model**: `InvoiceNumbering` (NOT InvoiceGroup)
+- **Table**: `invoice_numbering` (NOT invoice_groups)
+- **Foreign Key**: `numbering_id` (NOT group_id)
+- **Relationship**: `$invoice->numbering()` (NOT $invoice->group())
+
+**Why:** "Numbering" better describes the purpose - managing invoice number generation schemes. "Group" is too generic and doesn't convey the specific functionality.
+
+**Example:**
+```php
+// Correct naming
+class InvoiceNumbering extends Model {
+    protected $table = 'invoice_numbering';
+    
+    public function invoices(): HasMany {
+        return $this->hasMany(Invoice::class, 'numbering_id');
+    }
+    
+    public function generateNextNumber(): string { /* ... */ }
+}
+
+// Usage in Invoice model
+class Invoice extends Model {
+    public function numbering(): BelongsTo {
+        return $this->belongsTo(InvoiceNumbering::class, 'numbering_id');
+    }
+}
+
+// Controller usage
+$numbering = InvoiceNumbering::find($numberingId);
+$invoiceNumber = $numbering->generateNextNumber();
+```
+
+#### General Naming Guidelines
+- Use explicit, descriptive names that reflect purpose
+- Avoid generic terms like "group", "type", "category" without context
+- Prefer domain-specific terminology (e.g., "numbering", "taxation", "shipping")
+- Keep naming consistent across models, migrations, and relationships
+
 ### Authentication & Authorization
 - Use Spatie Laravel-Permission for RBAC
 - Create policies for all models

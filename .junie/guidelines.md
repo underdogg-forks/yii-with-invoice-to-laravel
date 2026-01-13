@@ -52,6 +52,31 @@ public function it_does_something(): void
 - Delegate business logic to services
 - Return views or JSON responses
 
+## Naming Conventions
+
+### Invoice Numbering
+- **Model**: `InvoiceNumbering` (NOT InvoiceGroup)
+- **Table**: `invoice_numbering` (NOT invoice_groups)
+- **Foreign Key**: `numbering_id` (NOT group_id)
+- **Relationship**: `$invoice->numbering()` (NOT $invoice->group())
+
+This naming better reflects the purpose: managing invoice number generation schemes.
+
+**Example:**
+```php
+// Model
+class InvoiceNumbering extends Model {
+    public function generateNextNumber(): string { /* ... */ }
+}
+
+// Usage
+$numbering = InvoiceNumbering::find($numberingId);
+$invoiceNumber = $numbering->generateNextNumber();
+
+// Relationship
+$invoice->numbering; // Access the numbering scheme
+```
+
 ## Authentication & Authorization
 
 ### Using Spatie/Laravel-Permission + Policies
@@ -83,12 +108,14 @@ class ClientPeppolPolicy
 - Follow PSR-12 coding standards
 - Document complex business logic
 - Use Laravel's built-in helpers and facades
+- Use semantic naming that reflects purpose (e.g., "numbering" not "group")
 
 ### Avoid:
 - Hardcoded URLs (use route() helper)
 - Business logic in controllers
 - Direct database queries in controllers
 - Magic numbers and strings
+- Ambiguous naming (prefer explicit names like "numbering" over generic ones like "group")
 
 ## Migration Strategy
 
@@ -191,3 +218,4 @@ class ClientPeppolPolicy
 - Optimize queries based on profiling
 - Update tests as requirements change
 - Document lessons learned
+- Use clear, semantic naming for better maintainability

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('invoice_groups', function (Blueprint $table) {
+        Schema::create('invoice_numbering', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
             $table->string('identifier_format', 50)->nullable();
@@ -29,6 +29,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('invoice_statuses');
-        Schema::dropIfExists('invoice_groups');
+        Schema::dropIfExists('invoice_numbering');
     }
 };

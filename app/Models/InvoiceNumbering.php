@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class InvoiceGroup extends Model
+class InvoiceNumbering extends Model
 {
     use HasFactory;
+
+    protected $table = 'invoice_numbering';
 
     protected $fillable = [
         'name',
@@ -24,11 +26,11 @@ class InvoiceGroup extends Model
 
     public function invoices(): HasMany
     {
-        return $this->hasMany(Invoice::class, 'group_id');
+        return $this->hasMany(Invoice::class, 'numbering_id');
     }
 
     /**
-     * Generate next invoice number for this group
+     * Generate next invoice number for this numbering scheme
      */
     public function generateNextNumber(): string
     {

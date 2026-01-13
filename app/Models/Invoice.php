@@ -17,7 +17,7 @@ class Invoice extends Model
     protected $fillable = [
         'number',
         'client_id',
-        'group_id',
+        'numbering_id',
         'status_id',
         'date_created',
         'date_modified',
@@ -69,9 +69,9 @@ class Invoice extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function group(): BelongsTo
+    public function numbering(): BelongsTo
     {
-        return $this->belongsTo(InvoiceGroup::class, 'group_id');
+        return $this->belongsTo(InvoiceNumbering::class, 'numbering_id');
     }
 
     public function status(): BelongsTo
