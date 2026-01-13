@@ -23,17 +23,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(UnitPeppolRepository::class);
 
         // Register Services
-        $this->app->singleton(ClientPeppolService::class, function ($app) {
-            return new ClientPeppolService($app->make(ClientPeppolRepository::class));
-        });
-
-        $this->app->singleton(PaymentPeppolService::class, function ($app) {
-            return new PaymentPeppolService($app->make(PaymentPeppolRepository::class));
-        });
-
-        $this->app->singleton(UnitPeppolService::class, function ($app) {
-            return new UnitPeppolService($app->make(UnitPeppolRepository::class));
-        });
+        $this->app->singleton(ClientPeppolService::class);
+        $this->app->singleton(PaymentPeppolService::class);
+        $this->app->singleton(UnitPeppolService::class);
     }
 
     /**
