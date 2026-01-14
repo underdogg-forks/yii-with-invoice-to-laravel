@@ -7,6 +7,7 @@ use App\Models\Invoice;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderStatus;
 use App\Repositories\SalesOrderRepository;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class SalesOrderService
@@ -186,11 +187,16 @@ class SalesOrderService
             throw new \Exception("Sales Order cannot be converted to Invoice");
         }
         
-        // Create invoice from sales order
+        // Create invoice from sales order with atomic number generation
+        $invoiceNumber = DB::transaction(function () {
+            $nextNumber = Invoice::lockForUpdate()->max('id') + 1;
+            return 'INV-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        });
+        
         $invoice = Invoice::create([
             'client_id' => $salesOrder->client_id,
             'user_id' => $userId,
-            'invoice_number' => 'INV-' . str_pad(Invoice::count() + 1, 4, '0', STR_PAD_LEFT),
+            'invoice_number' => $invoiceNumber,
             'invoice_date' => now(),
             'due_date' => now()->addDays(30),
             'terms' => $salesOrder->terms,

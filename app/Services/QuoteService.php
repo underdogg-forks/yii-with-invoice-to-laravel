@@ -7,6 +7,7 @@ use App\Models\Quote;
 use App\Models\QuoteStatus;
 use App\Models\SalesOrder;
 use App\Repositories\QuoteRepository;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class QuoteService
@@ -185,12 +186,17 @@ class QuoteService
             throw new \Exception("Quote cannot be converted to Sales Order");
         }
         
-        // Create sales order from quote
+        // Create sales order from quote with atomic number generation
+        $soNumber = DB::transaction(function () {
+            $nextNumber = SalesOrder::lockForUpdate()->max('id') + 1;
+            return 'SO-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        });
+        
         $salesOrder = SalesOrder::create([
             'client_id' => $quote->client_id,
             'user_id' => $userId,
             'quote_id' => $quote->id,
-            'so_number' => 'SO-' . str_pad(SalesOrder::count() + 1, 4, '0', STR_PAD_LEFT),
+            'so_number' => $soNumber,
             'reference' => $quote->reference,
             'terms' => $quote->terms,
             'footer' => $quote->footer,

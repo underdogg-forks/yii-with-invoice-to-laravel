@@ -26,7 +26,7 @@ class UserFactory extends Factory
     /**
      * Indicate that the user has 2FA enabled
      */
-    public function withTwoFactor(): static
+    public function twoFactorEnabled(): static
     {
         return $this->state(fn (array $attributes) => [
             'tfa_enabled' => true,

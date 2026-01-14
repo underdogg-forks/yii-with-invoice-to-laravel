@@ -276,7 +276,7 @@ class UblXmlService
         $this->addElement($invoiceLine, 'cbc:ID', (string)$lineNumber, $this->cbc);
 
         $quantity = $this->dom->createElementNS($this->cbc, 'cbc:InvoicedQuantity', (string)($item->quantity ?? 1));
-        $quantity->setAttribute('unitCode', $item->product->unit_code ?? 'C62'); // C62 = piece
+        $quantity->setAttribute('unitCode', $item->product?->unit_code ?? 'C62'); // C62 = piece
         $invoiceLine->appendChild($quantity);
 
         $lineExtensionAmount = $this->dom->createElementNS($this->cbc, 'cbc:LineExtensionAmount', number_format($item->item_subtotal ?? 0, 2, '.', ''));
