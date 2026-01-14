@@ -26,6 +26,9 @@ class PasswordResetToken extends Model
      */
     public function isExpired(): bool
     {
+        if ($this->created_at === null) {
+            return true; // Treat missing timestamp as expired
+        }
         return $this->created_at->addHour()->isPast();
     }
 }
