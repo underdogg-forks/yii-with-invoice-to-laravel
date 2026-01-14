@@ -10,20 +10,7 @@ class InvoiceItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'invoice_id',
-        'product_id',
-        'tax_rate_id',
-        'name',
-        'description',
-        'quantity',
-        'price',
-        'discount_amount',
-        'discount_percent',
-        'order',
-        'product_unit',
-        'product_sku',
-    ];
+    public $timestamps = true;
 
     protected $casts = [
         'quantity' => 'decimal:2',
@@ -32,6 +19,24 @@ class InvoiceItem extends Model
         'discount_percent' => 'decimal:2',
         'order' => 'integer',
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     public function invoice(): BelongsTo
     {
@@ -47,6 +52,42 @@ class InvoiceItem extends Model
     {
         return $this->belongsTo(TaxRate::class);
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Calculate subtotal for this item
@@ -83,4 +124,6 @@ class InvoiceItem extends Model
     {
         return $this->getSubtotal() + $this->getTaxAmount();
     }
+
+    #endregion
 }

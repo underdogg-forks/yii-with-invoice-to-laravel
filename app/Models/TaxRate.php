@@ -10,16 +10,30 @@ class TaxRate extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'name',
-        'rate',
-        'is_default',
-    ];
+    public $timestamps = true;
 
     protected $casts = [
         'rate' => 'decimal:2',
         'is_default' => 'boolean',
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     public function invoiceItems(): HasMany
     {
@@ -30,4 +44,33 @@ class TaxRate extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
 }

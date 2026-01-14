@@ -10,32 +10,63 @@ class ClientPeppol extends Model
 {
     use HasFactory;
 
-    protected $table = 'client_peppol';
+    public $timestamps = true;
 
-    protected $fillable = [
-        'client_id',
-        'endpointid',
-        'endpointid_schemeid',
-        'identificationid',
-        'identificationid_schemeid',
-        'taxschemecompanyid',
-        'taxschemeid',
-        'legal_entity_registration_name',
-        'legal_entity_companyid',
-        'legal_entity_companyid_schemeid',
-        'legal_entity_company_legal_form',
-        'financial_institution_branchid',
-        'accounting_cost',
-        'supplier_assigned_accountid',
-        'buyer_reference',
-    ];
+    protected $table = 'client_peppol';
 
     protected $casts = [
         'client_id' => 'integer',
     ];
 
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class, 'client_id');
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
 }

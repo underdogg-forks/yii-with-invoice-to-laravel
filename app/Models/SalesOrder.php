@@ -12,34 +12,9 @@ class SalesOrder extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'sales_orders';
+    public $timestamps = true;
 
-    protected $fillable = [
-        'so_number',
-        'quote_id',
-        'client_id',
-        'user_id',
-        'status_id',
-        'order_date',
-        'expected_delivery_date',
-        'subtotal',
-        'tax_total',
-        'discount_amount',
-        'discount_percent',
-        'total_amount',
-        'notes',
-        'terms_and_conditions',
-        'url_key',
-        'password',
-        'is_read_only',
-        'confirmed_by',
-        'confirmed_at',
-        'completed_by',
-        'completed_at',
-        'cancelled_by',
-        'cancelled_at',
-        'cancellation_reason',
-    ];
+    protected $table = 'sales_orders';
 
     protected $casts = [
         'quote_date' => 'date',
@@ -57,7 +32,24 @@ class SalesOrder extends Model
         'is_read_only' => 'boolean',
     ];
 
-    // Relationships
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
@@ -93,7 +85,33 @@ class SalesOrder extends Model
         return $this->hasOne(Invoice::class, 'so_id');
     }
 
-    // Scopes
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
     public function scopePending($query)
     {
         return $query->where('status_id', SalesOrderStatus::STATUS_PENDING);
@@ -128,7 +146,15 @@ class SalesOrder extends Model
         ]);
     }
 
-    // Helper methods
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
+
     public function canBeConfirmed(): bool
     {
         return $this->status_id == SalesOrderStatus::STATUS_PENDING;
@@ -159,4 +185,6 @@ class SalesOrder extends Model
     {
         return bin2hex(random_bytes(32));
     }
+
+    #endregion
 }

@@ -13,33 +13,9 @@ class Quote extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'quotes';
+    public $timestamps = true;
 
-    protected $fillable = [
-        'quote_number',
-        'client_id',
-        'user_id',
-        'status_id',
-        'quote_date',
-        'expiry_date',
-        'subtotal',
-        'tax_total',
-        'discount_amount',
-        'discount_percent',
-        'total_amount',
-        'notes',
-        'terms_and_conditions',
-        'url_key',
-        'password',
-        'is_read_only',
-        'approved_by',
-        'approved_at',
-        'rejected_by',
-        'rejected_at',
-        'rejection_reason',
-        'sent_at',
-        'viewed_at',
-    ];
+    protected $table = 'quotes';
 
     protected $casts = [
         'quote_date' => 'date',
@@ -56,7 +32,24 @@ class Quote extends Model
         'is_read_only' => 'boolean',
     ];
 
-    // Relationships
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
@@ -87,7 +80,33 @@ class Quote extends Model
         return $this->hasOne(SalesOrder::class);
     }
 
-    // Scopes
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
     public function scopeDraft($query)
     {
         return $query->where('status_id', QuoteStatus::STATUS_DRAFT);
@@ -122,7 +141,15 @@ class Quote extends Model
         return $query->whereIn('status_id', [QuoteStatus::STATUS_DRAFT, QuoteStatus::STATUS_SENT, QuoteStatus::STATUS_VIEWED]);
     }
 
-    // Helper methods
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
+
     public function isExpired(): bool
     {
         return $this->expiry_date && $this->expiry_date->isPast() 
@@ -151,4 +178,6 @@ class Quote extends Model
     {
         return bin2hex(random_bytes(32));
     }
+
+    #endregion
 }

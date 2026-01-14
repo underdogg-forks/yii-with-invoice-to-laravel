@@ -10,21 +10,64 @@ class PaymentPeppol extends Model
 {
     use HasFactory;
 
-    protected $table = 'payment_peppol';
+    public $timestamps = true;
 
-    protected $fillable = [
-        'inv_id',
-        'auto_reference',
-        'provider',
-    ];
+    protected $table = 'payment_peppol';
 
     protected $casts = [
         'inv_id' => 'integer',
         'auto_reference' => 'integer',
     ];
 
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class, 'inv_id');
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
 }
