@@ -1,42 +1,17 @@
 <?php
 
-declare(strict_types=1);
+use Illuminate\Http\Request;
 
-use Yiisoft\Yii\Runner\Http\HttpApplicationRunner;
+define('LARAVEL_START', microtime(true));
 
-/**
- * @psalm-suppress RiskyTruthyFalsyComparison getenv('YII_C3')
- */
-if (getenv('YII_C3')) {
-    $c3 = dirname(__DIR__) . '/c3.php';
-    if (file_exists($c3)) {
-        require_once $c3;
-    }
+// Determine if the application is in maintenance mode...
+if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
+    require $maintenance;
 }
 
-/**
- * @psalm-var string $_SERVER['REQUEST_URI']
- */
-// PHP built-in server routing.
-if (PHP_SAPI === 'cli-server') {
-    // Serve static files as is.
-    $path = (string) parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    if (is_file(__DIR__ . $path)) {
-        return false;
-    }
+// Register the Composer autoloader...
+require __DIR__.'/../vendor/autoload.php';
 
-    // Explicitly set for URLs with dot.
-    $_SERVER['SCRIPT_NAME'] = '/index.php';
-}
-
-chdir(dirname(__DIR__));
-require_once dirname(__DIR__) . '/autoload.php';
-
-// Run HTTP application runner
-$runner = new HttpApplicationRunner(
-    rootPath: dirname(__DIR__),
-    debug: !empty($_ENV['YII_DEBUG']) ? $_ENV['YII_DEBUG'] : false,
-    checkEvents: !empty($_ENV['YII_DEBUG']) ? $_ENV['YII_DEBUG'] : false,
-    environment: $_ENV['YII_ENV'],
-);
-$runner->run();
+// Bootstrap Laravel and handle the request...
+(require_once __DIR__.'/../bootstrap/app.php')
+    ->handleRequest(Request::capture());
