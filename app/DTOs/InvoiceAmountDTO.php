@@ -24,10 +24,10 @@ class InvoiceAmountDTO
             invoice_id: $amount->invoice_id,
             item_subtotal: $amount->item_subtotal ?? 0.0,
             item_tax_total: $amount->item_tax_total ?? 0.0,
-            invoice_discount_total: $amount->invoice_discount_total ?? 0.0,
-            invoice_total: $amount->invoice_total ?? 0.0,
-            invoice_paid: $amount->invoice_paid ?? 0.0,
-            invoice_balance: $amount->invoice_balance ?? 0.0,
+            invoice_discount_total: $amount->discount ?? 0.0,
+            invoice_total: $amount->total ?? 0.0,
+            invoice_paid: $amount->paid ?? 0.0,
+            invoice_balance: $amount->balance ?? 0.0,
         );
     }
 
@@ -38,10 +38,10 @@ class InvoiceAmountDTO
             'invoice_id' => $this->invoice_id,
             'item_subtotal' => $this->item_subtotal,
             'item_tax_total' => $this->item_tax_total,
-            'invoice_discount_total' => $this->invoice_discount_total,
-            'invoice_total' => $this->invoice_total,
-            'invoice_paid' => $this->invoice_paid,
-            'invoice_balance' => $this->invoice_balance,
+            'discount' => $this->invoice_discount_total,
+            'total' => $this->invoice_total,
+            'paid' => $this->invoice_paid,
+            'balance' => $this->invoice_balance,
         ];
     }
 

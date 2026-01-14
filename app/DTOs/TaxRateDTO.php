@@ -17,9 +17,9 @@ class TaxRateDTO
     {
         return new self(
             id: $taxRate->id,
-            tax_rate_name: $taxRate->tax_rate_name ?? '',
-            tax_rate_percent: $taxRate->tax_rate_percent ?? 0.0,
-            is_active: $taxRate->is_active ?? true,
+            tax_rate_name: $taxRate->name ?? '',
+            tax_rate_percent: (float) ($taxRate->rate ?? 0.0),
+            is_active: $taxRate->is_default ?? true,
         );
     }
 
@@ -27,9 +27,9 @@ class TaxRateDTO
     {
         return [
             'id' => $this->id,
-            'tax_rate_name' => $this->tax_rate_name,
-            'tax_rate_percent' => $this->tax_rate_percent,
-            'is_active' => $this->is_active,
+            'name' => $this->tax_rate_name,
+            'rate' => $this->tax_rate_percent,
+            'is_default' => $this->is_active,
         ];
     }
 }
