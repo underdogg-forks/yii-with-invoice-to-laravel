@@ -33,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant' => \App\Http\Middleware\TenantMiddleware::class,
             'rate.limit.user' => \App\Http\Middleware\RateLimitByUserMiddleware::class,
         ]);
+        //
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
