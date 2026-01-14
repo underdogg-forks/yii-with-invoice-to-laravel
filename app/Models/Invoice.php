@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\InvoiceStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,6 +30,7 @@ class Invoice extends Model
         'total_amount' => 'decimal:2',
         'is_read_only' => 'boolean',
         'client_id' => 'integer',
+        'status' => InvoiceStatusEnum::class,
     ];
 
     protected $guarded = [];
@@ -57,11 +59,6 @@ class Invoice extends Model
     public function numbering(): BelongsTo
     {
         return $this->belongsTo(InvoiceNumbering::class, 'numbering_id');
-    }
-
-    public function status(): BelongsTo
-    {
-        return $this->belongsTo(InvoiceStatus::class, 'status_id');
     }
 
     public function items(): HasMany
@@ -132,7 +129,7 @@ class Invoice extends Model
      */
     public function isPaid(): bool
     {
-        return $this->status === 'paid' || ($this->status_id && $this->status_id === 4);
+        return $this->status === InvoiceStatusEnum::Paid;
     }
 
     /**

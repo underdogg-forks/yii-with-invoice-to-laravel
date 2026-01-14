@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\ReportTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Report extends Model
@@ -14,8 +16,8 @@ class Report extends Model
     public $timestamps = true;
 
     protected $casts = [
-        'parameters' => 'array',
         'generated_at' => 'datetime',
+        'type' => ReportTypeEnum::class,
     ];
 
     protected $guarded = [];
@@ -42,6 +44,14 @@ class Report extends Model
     public function generator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'generated_by');
+    }
+
+    /**
+     * Get all parameters for this report
+     */
+    public function parameters(): HasMany
+    {
+        return $this->hasMany(ReportParameter::class);
     }
 
     #endregion
@@ -109,7 +119,8 @@ class Report extends Model
      */
     public function getParameter(string $key, $default = null)
     {
-        return $this->parameters[$key] ?? $default;
+        $param = $this->parameters()->where('key', $key)->first();
+        return $param ? $param->value : $default;
     }
 
     /**

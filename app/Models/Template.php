@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\TemplateCategoryEnum;
+use App\Enums\TemplateTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,6 +19,8 @@ class Template extends Model
     protected $casts = [
         'is_default' => 'boolean',
         'is_active' => 'boolean',
+        'type' => TemplateTypeEnum::class,
+        'category' => TemplateCategoryEnum::class,
     ];
 
     protected $guarded = [];
