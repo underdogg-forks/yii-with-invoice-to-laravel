@@ -4,6 +4,72 @@
 
 This is a Laravel 12 application migrated from Yii3, focused on invoice management with Peppol (Pan-European Public Procurement OnLine) support. The migration is incremental, preserving business logic while adapting to Laravel conventions.
 
+## Core Development Principles
+
+### SOLID Principles
+
+**Always apply SOLID principles when generating code:**
+
+1. **Single Responsibility**: Each class has one clear purpose
+2. **Open/Closed**: Use interfaces and abstract classes for extensibility
+3. **Liskov Substitution**: Ensure proper inheritance hierarchies
+4. **Interface Segregation**: Create focused, client-specific interfaces
+5. **Dependency Inversion**: Inject abstractions (interfaces), not concrete classes
+
+### DRY (Don't Repeat Yourself)
+
+- Extract common logic to traits, base classes, or services
+- Use helper functions for repeated operations
+- Leverage template inheritance and composition
+- Avoid duplicating validation rules, calculations, or business logic
+
+### Early Return Pattern
+
+**Always use guard clauses and fail-fast:**
+
+```php
+// ✅ Preferred
+public function process($data): bool
+{
+    if (!$data) {
+        return false;
+    }
+    
+    if (!$this->validate($data)) {
+        return false;
+    }
+    
+    // Main logic here
+    return $this->finalize($data);
+}
+
+// ❌ Avoid
+public function process($data): bool
+{
+    if ($data) {
+        if ($this->validate($data)) {
+            return $this->finalize($data);
+        }
+    }
+    return false;
+}
+```
+
+### Dynamic Programming
+
+Use memoization and caching for expensive operations:
+
+```php
+// Cache database queries
+Cache::remember('key', 3600, fn() => Model::expensive()->get());
+
+// Memoize within request
+private array $cache = [];
+if (isset($this->cache[$key])) {
+    return $this->cache[$key];
+}
+```
+
 ## Code Generation Guidelines
 
 ### Testing
@@ -37,12 +103,13 @@ When creating new features:
 1. **Start with Model and Migration**: Define database structure first
 2. **Create Factory**: For testing and seeding
 3. **Create DTO**: For type-safe data transfer
-4. **Create Repository**: For data access abstraction
-5. **Create Service**: For business logic
-6. **Create Controller**: For HTTP handling only
-7. **Create Views**: Plain PHP initially (not Blade)
-8. **Write Tests**: Comprehensive coverage with it_* methods
-9. **Add Routes**: With appropriate middleware (auth, throttle)
+4. **Create Repository Interface**: For data access abstraction
+5. **Create Repository**: Implement the interface
+6. **Create Service**: For business logic (inject repository interface)
+7. **Create Controller**: For HTTP handling only (inject service)
+8. **Create Views**: Plain PHP initially (not Blade)
+9. **Write Tests**: Comprehensive coverage with it_* methods
+10. **Add Routes**: With appropriate middleware (auth, throttle)
 
 ### Naming Conventions
 

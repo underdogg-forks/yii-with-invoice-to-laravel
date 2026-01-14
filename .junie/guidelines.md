@@ -1,5 +1,210 @@
 # Project Guidelines - Laravel Invoice Application
 
+## Core Principles
+
+### SOLID Principles
+
+#### Single Responsibility Principle (SRP)
+Each class should have one, and only one, reason to change.
+```php
+// ✅ Good - Single responsibility
+class InvoiceCalculator {
+    public function calculateTotal(Invoice $invoice): float { }
+}
+
+class InvoicePdfGenerator {
+    public function generate(Invoice $invoice): string { }
+}
+
+// ❌ Bad - Multiple responsibilities
+class InvoiceManager {
+    public function calculateTotal(Invoice $invoice): float { }
+    public function generatePdf(Invoice $invoice): string { }
+    public function sendEmail(Invoice $invoice): void { }
+}
+```
+
+#### Open/Closed Principle (OCP)
+Classes should be open for extension but closed for modification.
+```php
+// ✅ Good - Use strategy pattern
+interface PaymentGateway {
+    public function charge(float $amount): bool;
+}
+
+class StripeGateway implements PaymentGateway { }
+class BraintreeGateway implements PaymentGateway { }
+
+class PaymentService {
+    public function __construct(private PaymentGateway $gateway) {}
+    
+    public function processPayment(float $amount): bool {
+        return $this->gateway->charge($amount);
+    }
+}
+```
+
+#### Liskov Substitution Principle (LSP)
+Subtypes must be substitutable for their base types.
+```php
+// ✅ Good - Proper inheritance
+abstract class Document {
+    abstract public function generate(): string;
+}
+
+class InvoiceDocument extends Document {
+    public function generate(): string {
+        return $this->generateInvoicePdf();
+    }
+}
+
+class QuoteDocument extends Document {
+    public function generate(): string {
+        return $this->generateQuotePdf();
+    }
+}
+```
+
+#### Interface Segregation Principle (ISP)
+Clients should not be forced to depend on interfaces they don't use.
+```php
+// ✅ Good - Segregated interfaces
+interface Printable {
+    public function print(): string;
+}
+
+interface Emailable {
+    public function sendEmail(string $to): bool;
+}
+
+class Invoice implements Printable, Emailable { }
+class Quote implements Printable { } // Only implements what it needs
+```
+
+#### Dependency Inversion Principle (DIP)
+Depend on abstractions, not concretions.
+```php
+// ✅ Good - Depend on interface
+class InvoiceService {
+    public function __construct(private InvoiceRepositoryInterface $repository) {}
+}
+
+// ❌ Bad - Depend on concrete class
+class InvoiceService {
+    public function __construct(private EloquentInvoiceRepository $repository) {}
+}
+```
+
+### DRY (Don't Repeat Yourself)
+
+Eliminate code duplication by extracting common logic:
+
+```php
+// ✅ Good - Extracted common logic
+trait HasAmounts {
+    public function calculateTotal(): float {
+        return $this->subtotal + $this->tax - $this->discount;
+    }
+}
+
+class Invoice extends Model {
+    use HasAmounts;
+}
+
+class Quote extends Model {
+    use HasAmounts;
+}
+
+// ❌ Bad - Duplicated logic
+class Invoice {
+    public function calculateTotal(): float {
+        return $this->subtotal + $this->tax - $this->discount;
+    }
+}
+
+class Quote {
+    public function calculateTotal(): float {
+        return $this->subtotal + $this->tax - $this->discount; // Duplicated!
+    }
+}
+```
+
+### Early Return Pattern
+
+Use guard clauses and fail-fast to reduce nesting:
+
+```php
+// ✅ Good - Early returns
+public function processInvoice(Invoice $invoice): bool
+{
+    if (!$invoice->client) {
+        Log::error('Invoice has no client');
+        return false;
+    }
+    
+    if ($invoice->isPaid()) {
+        return true; // Already processed
+    }
+    
+    if (!$this->validate($invoice)) {
+        return false;
+    }
+    
+    // Main logic with minimal nesting
+    return $this->finalizeInvoice($invoice);
+}
+
+// ❌ Bad - Nested conditions
+public function processInvoice(Invoice $invoice): bool
+{
+    if ($invoice->client) {
+        if (!$invoice->isPaid()) {
+            if ($this->validate($invoice)) {
+                return $this->finalizeInvoice($invoice);
+            }
+        }
+    }
+    return false;
+}
+```
+
+### Dynamic Programming
+
+Cache and reuse computed results to avoid redundant calculations:
+
+```php
+// ✅ Good - Memoization
+class InvoiceCalculator {
+    private array $cache = [];
+    
+    public function calculateWithTax(Invoice $invoice): float
+    {
+        $cacheKey = "invoice_{$invoice->id}_tax";
+        
+        if (isset($this->cache[$cacheKey])) {
+            return $this->cache[$cacheKey];
+        }
+        
+        $result = $this->calculate($invoice);
+        $this->cache[$cacheKey] = $result;
+        
+        return $result;
+    }
+}
+
+// For expensive database queries
+class ReportService {
+    public function generateProfitReport(string $startDate, string $endDate): array
+    {
+        return Cache::remember(
+            "profit_report_{$startDate}_{$endDate}",
+            3600,
+            fn() => $this->calculateProfitData($startDate, $endDate)
+        );
+    }
+}
+```
+
 ## Testing Standards
 
 ### Test Method Naming
@@ -41,11 +246,13 @@ public function it_does_something(): void
 - Contains business logic
 - Located in `app/Services/`
 - Injected via constructor
+- Apply SOLID principles
 
 ### Repository Pattern
 - Handles data access
 - Located in `app/Repositories/`
 - Provides abstraction over Eloquent models
+- Use interfaces for dependency inversion
 
 ### Controllers
 - Handle HTTP requests/responses only
