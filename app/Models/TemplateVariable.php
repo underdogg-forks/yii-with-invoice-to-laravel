@@ -9,20 +9,66 @@ class TemplateVariable extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'name',
-        'key',
-        'description',
-        'type', // string, number, date, array, object
-        'default_value',
-        'is_required',
-        'applicable_to', // JSON array of template types
-    ];
+    public $timestamps = true;
 
     protected $casts = [
         'applicable_to' => 'array',
         'is_required' => 'boolean',
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Check if variable is applicable to a template type
@@ -31,4 +77,6 @@ class TemplateVariable extends Model
     {
         return in_array($templateType, $this->applicable_to ?? []);
     }
+
+    #endregion
 }
