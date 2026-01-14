@@ -10,15 +10,29 @@ class ClientCustom extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $table = 'client_custom';
 
-    protected $fillable = [
-        'client_id',
-        'custom_field_id',
-        'value',
-    ];
+    protected $casts = [];
 
-    public $timestamps = false;
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     public function client(): BelongsTo
     {
@@ -29,4 +43,33 @@ class ClientCustom extends Model
     {
         return $this->belongsTo(CustomField::class, 'custom_field_id');
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
 }
