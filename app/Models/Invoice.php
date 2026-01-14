@@ -12,42 +12,9 @@ class Invoice extends Model
 {
     use HasFactory;
 
-    protected $table = 'invoices';
+    public $timestamps = true;
 
-    protected $fillable = [
-        'number',
-        'client_id',
-        'numbering_id',
-        'status_id',
-        'date_created',
-        'date_modified',
-        'date_supplied',
-        'date_due',
-        'date_tax_point',
-        'date_paid_off',
-        'quote_id',
-        'so_id',
-        'creditinvoice_parent_id',
-        'delivery_id',
-        'delivery_location_id',
-        'postal_address_id',
-        'contract_id',
-        'discount_amount',
-        'discount_percent',
-        'url_key',
-        'password',
-        'payment_method',
-        'terms',
-        'note',
-        'document_description',
-        'stand_in_code',
-        'is_read_only',
-        // Legacy fields
-        'invoice_number',
-        'date_issued',
-        'total_amount',
-        'status',
-    ];
+    protected $table = 'invoices';
 
     protected $casts = [
         'date_created' => 'date',
@@ -63,6 +30,24 @@ class Invoice extends Model
         'is_read_only' => 'boolean',
         'client_id' => 'integer',
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     public function client(): BelongsTo
     {
@@ -94,6 +79,42 @@ class Invoice extends Model
         return $this->hasMany(PaymentPeppol::class, 'inv_id');
     }
 
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
+
     /**
      * Check if invoice is overdue
      */
@@ -121,4 +142,6 @@ class Invoice extends Model
     {
         return bin2hex(random_bytes(16));
     }
+
+    #endregion
 }

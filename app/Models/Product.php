@@ -11,19 +11,7 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'family_id',
-        'unit_id',
-        'tax_rate_id',
-        'product_sku',
-        'product_name',
-        'product_description',
-        'product_price',
-        'purchase_price',
-        'is_sold_as_service',
-        'product_tariff',
-        'sort_order',
-    ];
+    public $timestamps = true;
 
     protected $casts = [
         'product_price' => 'decimal:2',
@@ -31,6 +19,24 @@ class Product extends Model
         'is_sold_as_service' => 'boolean',
         'sort_order' => 'integer',
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     public function family(): BelongsTo
     {
@@ -51,4 +57,33 @@ class Product extends Model
     {
         return $this->hasMany(InvoiceItem::class);
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
 }

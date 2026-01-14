@@ -3,15 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles;
 
+    public $timestamps = true;
+
+    // User model keeps $fillable for security (authentication model)
     protected $fillable = [
         'login',
         'email',
@@ -32,6 +35,22 @@ class User extends Authenticatable
         'tfa_enabled' => 'boolean',
     ];
 
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function recoveryCodes(): HasMany
     {
         return $this->hasMany(RecoveryCode::class);
@@ -41,6 +60,42 @@ class User extends Authenticatable
     {
         return $this->hasMany(PasswordResetToken::class, 'email', 'email');
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Generate new recovery codes for 2FA
@@ -90,4 +145,6 @@ class User extends Authenticatable
     {
         return $this->tfa_enabled && !empty($this->totp_secret);
     }
+
+    #endregion
 }
