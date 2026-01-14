@@ -10,23 +10,16 @@ class QuoteStatus extends Model
 {
     use HasFactory;
 
-    protected $table = 'quote_statuses';
+    public $timestamps = true;
 
-    protected $fillable = [
-        'label',
-        'sequence',
-        'is_active',
-    ];
+    protected $table = 'quote_statuses';
 
     protected $casts = [
         'sequence' => 'integer',
         'is_active' => 'boolean',
     ];
 
-    public function quotes(): HasMany
-    {
-        return $this->hasMany(Quote::class, 'status_id');
-    }
+    protected $guarded = [];
 
     // Status constants
     public const STATUS_DRAFT = 1;
@@ -36,9 +29,58 @@ class QuoteStatus extends Model
     public const STATUS_REJECTED = 5;
     public const STATUS_EXPIRED = 6;
 
-    // Scope for active statuses
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
+    public function quotes(): HasMany
+    {
+        return $this->hasMany(Quote::class, 'status_id');
+    }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
+
+    #endregion
 }

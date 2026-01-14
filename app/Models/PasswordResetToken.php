@@ -7,19 +7,68 @@ use Illuminate\Database\Eloquent\Model;
 class PasswordResetToken extends Model
 {
     public $incrementing = false;
-    protected $primaryKey = 'email';
-    protected $keyType = 'string';
     public $timestamps = false;
 
-    protected $fillable = [
-        'email',
-        'token',
-        'created_at',
-    ];
+    protected $primaryKey = 'email';
+    protected $keyType = 'string';
 
     protected $casts = [
         'created_at' => 'datetime',
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Check if the token has expired (1 hour)
@@ -31,4 +80,6 @@ class PasswordResetToken extends Model
         }
         return $this->created_at->addHour()->isPast();
     }
+
+    #endregion
 }

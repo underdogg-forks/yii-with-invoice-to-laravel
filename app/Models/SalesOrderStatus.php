@@ -10,23 +10,16 @@ class SalesOrderStatus extends Model
 {
     use HasFactory;
 
-    protected $table = 'sales_order_statuses';
+    public $timestamps = true;
 
-    protected $fillable = [
-        'label',
-        'sequence',
-        'is_active',
-    ];
+    protected $table = 'sales_order_statuses';
 
     protected $casts = [
         'sequence' => 'integer',
         'is_active' => 'boolean',
     ];
 
-    public function salesOrders(): HasMany
-    {
-        return $this->hasMany(SalesOrder::class, 'status_id');
-    }
+    protected $guarded = [];
 
     // Status constants
     public const STATUS_PENDING = 1;
@@ -35,9 +28,58 @@ class SalesOrderStatus extends Model
     public const STATUS_COMPLETED = 4;
     public const STATUS_CANCELLED = 5;
 
-    // Scope for active statuses
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
+    public function salesOrders(): HasMany
+    {
+        return $this->hasMany(SalesOrder::class, 'status_id');
+    }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
+
+    #endregion
 }

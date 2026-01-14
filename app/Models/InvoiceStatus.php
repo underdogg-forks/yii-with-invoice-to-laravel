@@ -10,6 +10,14 @@ class InvoiceStatus extends Model
 {
     use HasFactory;
 
+    public $timestamps = true;
+
+    protected $casts = [
+        'sort_order' => 'integer',
+    ];
+
+    protected $guarded = [];
+
     // Status constants
     public const DRAFT = 1;
     public const SENT = 2;
@@ -18,18 +26,53 @@ class InvoiceStatus extends Model
     public const CANCELLED = 5;
     public const OVERDUE = 6;
 
-    protected $fillable = [
-        'name',
-        'label',
-        'sort_order',
-    ];
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
 
-    protected $casts = [
-        'sort_order' => 'integer',
-    ];
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class, 'status_id');
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
 }
