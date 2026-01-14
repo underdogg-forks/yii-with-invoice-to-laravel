@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('domain')->nullable();
             $table->string('database')->nullable(); // for separate DB multi-tenancy
             $table->boolean('is_active')->default(true);
-            $table->json('settings')->nullable();
             $table->timestamp('trial_ends_at')->nullable();
             $table->timestamp('subscribed_at')->nullable();
             $table->timestamps();

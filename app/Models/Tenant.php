@@ -16,14 +16,12 @@ class Tenant extends Model
         'domain',
         'database',
         'is_active',
-        'settings',
         'trial_ends_at',
         'subscribed_at',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'settings' => 'array',
         'trial_ends_at' => 'datetime',
         'subscribed_at' => 'datetime',
         'created_at' => 'datetime',
@@ -34,5 +32,41 @@ class Tenant extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    public function settings(): HasMany
+    {
+        return $this->hasMany(TenantSetting::class);
+    }
+
+    /**
+     * Get a setting value by key.
+     */
+    public function getSetting(string $key, mixed $default = null): mixed
+    {
+        $setting = $this->settings()->where('key', $key)->first();
+        
+        return $setting ? $setting->value : $default;
+    }
+
+    /**
+     * Set a setting value.
+     */
+    public function setSetting(string $key, mixed $value): void
+    {
+        $this->settings()->updateOrCreate(
+            ['key' => $key],
+            ['value' => $value]
+        );
+    }
+
+    /**
+     * Get all settings as key-value pairs.
+     */
+    public function getAllSettings(): array
+    {
+        return $this->settings()
+            ->pluck('value', 'key')
+            ->toArray();
     }
 }
