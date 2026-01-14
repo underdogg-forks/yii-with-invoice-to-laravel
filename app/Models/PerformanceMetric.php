@@ -9,17 +9,6 @@ class PerformanceMetric extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = [
-        'url',
-        'method',
-        'execution_time',
-        'query_count',
-        'query_time',
-        'memory_usage',
-        'user_id',
-        'created_at',
-    ];
-
     protected $casts = [
         'execution_time' => 'decimal:2',
         'query_time' => 'decimal:2',
@@ -28,8 +17,55 @@ class PerformanceMetric extends Model
         'created_at' => 'datetime',
     ];
 
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
 }

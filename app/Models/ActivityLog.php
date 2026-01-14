@@ -7,21 +7,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ActivityLog extends Model
 {
-    protected $fillable = [
-        'user_id',
-        'action',
-        'model_type',
-        'model_id',
-        'method',
-        'url',
-        'ip_address',
-        'user_agent',
-        'request_data',
-        'response_data',
-        'status_code',
-        'execution_time',
-    ];
-
     protected $casts = [
         'request_data' => 'array',
         'response_data' => 'array',
@@ -30,8 +15,55 @@ class ActivityLog extends Model
         'updated_at' => 'datetime',
     ];
 
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
 }

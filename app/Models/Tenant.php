@@ -10,16 +10,6 @@ class Tenant extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = [
-        'name',
-        'subdomain',
-        'domain',
-        'database',
-        'is_active',
-        'trial_ends_at',
-        'subscribed_at',
-    ];
-
     protected $casts = [
         'is_active' => 'boolean',
         'trial_ends_at' => 'datetime',
@@ -29,15 +19,14 @@ class Tenant extends Model
         'deleted_at' => 'datetime',
     ];
 
-    public function users(): HasMany
-    {
-        return $this->hasMany(User::class);
-    }
+    protected $guarded = [];
 
-    public function settings(): HasMany
-    {
-        return $this->hasMany(TenantSetting::class);
-    }
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Get a setting value by key.
@@ -69,4 +58,52 @@ class Tenant extends Model
             ->pluck('value', 'key')
             ->toArray();
     }
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function settings(): HasMany
+    {
+        return $this->hasMany(TenantSetting::class);
+    }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
 }

@@ -7,17 +7,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Audit extends Model
 {
-    protected $fillable = [
-        'user_id',
-        'model_type',
-        'model_id',
-        'action',
-        'old_values',
-        'new_values',
-        'ip_address',
-        'user_agent',
-    ];
-
     protected $casts = [
         'old_values' => 'array',
         'new_values' => 'array',
@@ -25,8 +14,55 @@ class Audit extends Model
         'updated_at' => 'datetime',
     ];
 
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
 }
