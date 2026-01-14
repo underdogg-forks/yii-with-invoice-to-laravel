@@ -20,9 +20,9 @@ class InvoiceNumberingDTO
         return new self(
             id: $numbering->id,
             name: $numbering->name ?? '',
-            prefix: $numbering->prefix ?? '',
-            next_number: $numbering->next_number ?? 1,
-            padding: $numbering->padding ?? 4,
+            prefix: $numbering->identifier_format ?? '',
+            next_number: $numbering->next_id ?? 1,
+            padding: $numbering->left_pad ?? 4,
             is_default: $numbering->is_default ?? false,
         );
     }
