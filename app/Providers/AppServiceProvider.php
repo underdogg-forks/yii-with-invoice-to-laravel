@@ -35,6 +35,11 @@ use App\Services\UblXmlService;
 use App\Services\PeppolService;
 use App\Services\StoreCoveService;
 use App\Services\EmailService;
+use App\Services\TemplateService;
+use App\Services\TemplateBuilderService;
+use App\Services\ReportService;
+use App\Services\EmailTrackingService;
+use App\Services\NotificationService;
 use PragmaRX\Google2FA\Google2FA;
 
 class AppServiceProvider extends ServiceProvider
@@ -70,17 +75,22 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ClientService::class);
         $this->app->singleton(CustomFieldService::class);
         $this->app->singleton(EmailService::class);
+        $this->app->singleton(EmailTrackingService::class);
         $this->app->singleton(InvoiceAmountService::class);
         $this->app->singleton(InvoiceItemService::class);
         $this->app->singleton(InvoiceService::class);
+        $this->app->singleton(NotificationService::class);
         $this->app->singleton(PaymentPeppolService::class);
         $this->app->singleton(PdfService::class);
         $this->app->singleton(PeppolService::class);
         $this->app->singleton(ProductService::class);
         $this->app->singleton(QuoteService::class);
+        $this->app->singleton(ReportService::class);
         $this->app->singleton(SalesOrderService::class);
         $this->app->singleton(StoreCoveService::class);
         $this->app->singleton(TaxRateService::class);
+        $this->app->singleton(TemplateBuilderService::class);
+        $this->app->singleton(TemplateService::class);
         $this->app->singleton(UblXmlService::class);
         $this->app->singleton(UnitPeppolService::class);
         $this->app->singleton(UserService::class);
