@@ -11,20 +11,30 @@ class Report extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = [
-        'name',
-        'type', // profit_analysis, sales_summary, inventory_report, custom
-        'description',
-        'parameters', // JSON for report parameters (date range, filters, etc.)
-        'file_path',
-        'generated_by',
-        'generated_at',
-    ];
+    public $timestamps = true;
 
     protected $casts = [
         'parameters' => 'array',
         'generated_at' => 'datetime',
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Get the user who generated this report
@@ -33,6 +43,33 @@ class Report extends Model
     {
         return $this->belongsTo(User::class, 'generated_by');
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Scope: Filter by type
@@ -58,6 +95,15 @@ class Report extends Model
         return $query->where('generated_at', '>=', now()->subDays($days));
     }
 
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
+
     /**
      * Get parameter value
      */
@@ -73,4 +119,6 @@ class Report extends Model
     {
         return $this->file_path && file_exists(storage_path('app/' . $this->file_path));
     }
+
+    #endregion
 }

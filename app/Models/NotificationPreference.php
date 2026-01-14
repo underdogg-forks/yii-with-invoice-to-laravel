@@ -10,17 +10,29 @@ class NotificationPreference extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'channel', // email, database, push
-        'type', // invoice_created, quote_approved, etc.
-        'is_enabled',
-        'frequency', // immediate, daily, weekly
-    ];
+    public $timestamps = true;
 
     protected $casts = [
         'is_enabled' => 'boolean',
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Get the user who owns these preferences
@@ -29,6 +41,42 @@ class NotificationPreference extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Check if notifications are enabled for this channel/type
@@ -45,4 +93,6 @@ class NotificationPreference extends Model
     {
         return $this->frequency === 'immediate';
     }
+
+    #endregion
 }

@@ -10,18 +10,29 @@ class EmailAttachment extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'email_message_id',
-        'filename',
-        'original_filename',
-        'mime_type',
-        'file_size',
-        'file_path',
-    ];
+    public $timestamps = true;
 
     protected $casts = [
         'file_size' => 'integer',
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Get the email message this attachment belongs to
@@ -30,6 +41,15 @@ class EmailAttachment extends Model
     {
         return $this->belongsTo(EmailMessage::class, 'email_message_id');
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Get file size in human-readable format
@@ -45,4 +65,24 @@ class EmailAttachment extends Model
         
         return round($bytes, 2) . ' ' . $units[$i];
     }
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
 }
