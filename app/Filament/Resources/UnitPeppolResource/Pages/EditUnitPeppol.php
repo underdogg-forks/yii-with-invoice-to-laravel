@@ -22,17 +22,11 @@ class EditUnitPeppol extends EditRecord
                             ->relationship('unit', 'name')
                             ->searchable()
                             ->preload()
-                            ->required()
-                            ->label('Unit'),
+                            ->required(),
                         Forms\Components\TextInput::make('unit_peppol_code')
-                            ->required()
-                            ->maxLength(20)
-                            ->label('Peppol Unit Code')
-                            ->helperText('UN/ECE Recommendation 20 unit code'),
+                            ->maxLength(255),
                         Forms\Components\TextInput::make('unit_peppol_name')
-                            ->required()
-                            ->maxLength(255)
-                            ->label('Peppol Unit Name'),
+                            ->maxLength(255),
                     ])
                     ->columns(2),
             ]);
