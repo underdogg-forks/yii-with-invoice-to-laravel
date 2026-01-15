@@ -183,12 +183,8 @@ class ReportResource extends Resource
                     ->icon('heroicon-o-arrow-path')
                     ->color('warning')
                     ->requiresConfirmation()
-                    ->action(function (Report $record) {
-                        // Regeneration logic would be handled by a service
-                        // For now, just update the generated_at timestamp
-                        $record->update(['generated_at' => now()]);
-                    })
-                    ->successNotificationTitle('Report regenerated successfully'),
+                    ->action(fn () => null)
+                    ->visible(fn () => false), // Hide until regeneration service is implemented
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -16,7 +16,7 @@ class CreateReport extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['generated_by'] = auth()->id();
+        $data['generated_by'] = auth()->id() ?? throw new \RuntimeException('User must be authenticated to create reports');
         $data['generated_at'] = now();
         
         return $data;
