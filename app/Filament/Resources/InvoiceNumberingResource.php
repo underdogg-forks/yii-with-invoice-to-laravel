@@ -128,12 +128,34 @@ class InvoiceNumberingResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->action(function ($records) {
+                            $deletableRecords = collect();
+                            $failedRecords = collect();
+
                             foreach ($records as $record) {
-                                if ($record->invoices_count > 0) {
-                                    throw new \Exception("Cannot delete numbering scheme '{$record->name}' because it has associated invoices.");
+                                if ($record->invoices()->count() > 0) {
+                                    $failedRecords->push($record->name);
+                                } else {
+                                    $deletableRecords->push($record);
                                 }
                             }
-                            $records->each->delete();
+
+                            if ($failedRecords->isNotEmpty()) {
+                                \Filament\Notifications\Notification::make()
+                                    ->danger()
+                                    ->title('Cannot Delete Numbering Schemes')
+                                    ->body('The following numbering schemes have associated invoices and cannot be deleted: ' . $failedRecords->join(', '))
+                                    ->send();
+                            }
+
+                            if ($deletableRecords->isNotEmpty()) {
+                                $deletableRecords->each->delete();
+                                
+                                \Filament\Notifications\Notification::make()
+                                    ->success()
+                                    ->title('Numbering Schemes Deleted')
+                                    ->body($deletableRecords->count() . ' numbering scheme(s) deleted successfully.')
+                                    ->send();
+                            }
                         }),
                 ]),
             ]);

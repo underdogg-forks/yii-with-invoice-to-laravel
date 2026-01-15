@@ -62,6 +62,10 @@ class TemplateResource extends Resource
                             ->label('Template Content')
                             ->required()
                             ->fileAttachmentsDirectory('template-attachments')
+                            ->disableToolbarButtons([
+                                'attachFiles',
+                                'codeBlock',
+                            ])
                             ->toolbarButtons([
                                 'bold',
                                 'italic',
@@ -73,9 +77,9 @@ class TemplateResource extends Resource
                                 'h2',
                                 'h3',
                                 'blockquote',
-                                'codeBlock',
                             ])
-                            ->helperText('Available variables: {CLIENT_NAME}, {INVOICE_NUMBER}, {TOTAL_AMOUNT}')
+                            ->rules(['required', 'string', 'max:65535'])
+                            ->helperText('Available variables: {CLIENT_NAME}, {INVOICE_NUMBER}, {TOTAL_AMOUNT}. HTML is sanitized for security.')
                             ->columnSpan(2),
                         
                         Forms\Components\Textarea::make('description')

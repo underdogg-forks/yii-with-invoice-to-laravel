@@ -27,7 +27,7 @@
             </x-slot>
             
             <div class="prose prose-sm max-w-none dark:prose-invert">
-                {!! $template->content !!}
+                {!! strip_tags($template->content, '<p><br><strong><em><u><s><a><ul><ol><li><h2><h3><blockquote>') !!}
             </div>
         </x-filament::section>
         
@@ -65,10 +65,7 @@
                     <div>
                         <dt class="font-medium text-gray-500 dark:text-gray-400">Default Template</dt>
                         <dd class="mt-1">
-                            <x-filament::badge color="warning">
-                                <x-slot name="icon">
-                                    heroicon-o-star
-                                </x-slot>
+                            <x-filament::badge color="warning" icon="heroicon-o-star">
                                 Yes
                             </x-filament::badge>
                         </dd>

@@ -205,7 +205,56 @@ class SalesOrderResource extends Resource
                     ->icon('heroicon-o-document-text')
                     ->requiresConfirmation()
                     ->action(function (SalesOrder $record) {
-                        // TODO: Implement conversion logic
+                        try {
+                            \DB::transaction(function () use ($record) {
+                                // Create invoice from sales order
+                                $invoice = \App\Models\Invoice::create([
+                                    'client_id' => $record->client_id,
+                                    'invoice_number' => 'INV-' . now()->format('Ymd') . '-' . str_pad(\App\Models\Invoice::count() + 1, 4, '0', STR_PAD_LEFT),
+                                    'invoice_date' => now(),
+                                    'due_date' => now()->addDays(30),
+                                    'invoice_status_id' => \App\Enums\InvoiceStatusEnum::DRAFT->value,
+                                    'subtotal' => $record->subtotal,
+                                    'tax_total' => $record->tax_total,
+                                    'discount_total' => $record->discount_total,
+                                    'total_amount' => $record->total_amount,
+                                    'notes' => 'Converted from Sales Order: ' . $record->order_number,
+                                ]);
+
+                                // Copy line items
+                                foreach ($record->items as $item) {
+                                    $invoice->items()->create([
+                                        'product_id' => $item->product_id,
+                                        'description' => $item->description,
+                                        'quantity' => $item->quantity,
+                                        'unit_price' => $item->unit_price,
+                                        'tax_rate_id' => $item->tax_rate_id,
+                                        'discount_amount' => $item->discount_amount,
+                                        'line_total' => $item->line_total,
+                                    ]);
+                                }
+
+                                // Update sales order status
+                                $record->update([
+                                    'status_id' => \App\Enums\SalesOrderStatusEnum::INVOICED->value,
+                                ]);
+
+                                // Fire event
+                                event(new \App\Events\SalesOrderConverted($record, $invoice));
+                            });
+
+                            \Filament\Notifications\Notification::make()
+                                ->success()
+                                ->title('Sales Order Converted')
+                                ->body('Invoice created successfully from sales order.')
+                                ->send();
+                        } catch (\Exception $e) {
+                            \Filament\Notifications\Notification::make()
+                                ->danger()
+                                ->title('Conversion Failed')
+                                ->body('Failed to convert sales order to invoice: ' . $e->getMessage())
+                                ->send();
+                        }
                     })
                     ->visible(fn (SalesOrder $record): bool => $record->status_id === SalesOrderStatusEnum::COMPLETED->value),
                 Tables\Actions\Action::make('confirm_order')
