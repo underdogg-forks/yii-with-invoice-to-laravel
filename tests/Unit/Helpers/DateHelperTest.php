@@ -4,6 +4,7 @@ namespace Tests\Unit\Helpers;
 
 use App\Services\Helpers\DateHelper;
 use Carbon\Carbon;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class DateHelperTest extends TestCase
@@ -16,6 +17,7 @@ class DateHelperTest extends TestCase
         $this->helper = new DateHelper();
     }
 
+    #[Test]
     public function it_adds_business_days(): void
     {
         // Arrange
@@ -28,6 +30,7 @@ class DateHelperTest extends TestCase
         $this->assertEquals(Carbon::create(2024, 1, 15), $result); // Next Monday (skips weekend)
     }
 
+    #[Test]
     public function it_calculates_business_days_between_dates(): void
     {
         // Arrange
@@ -41,6 +44,7 @@ class DateHelperTest extends TestCase
         $this->assertEquals(5, $days); // Mon-Fri = 5 business days
     }
 
+    #[Test]
     public function it_identifies_business_days(): void
     {
         // Arrange
@@ -54,6 +58,7 @@ class DateHelperTest extends TestCase
         $this->assertFalse($this->helper->isBusinessDay($sunday));
     }
 
+    #[Test]
     public function it_parses_flexible_dates(): void
     {
         // Act & Assert

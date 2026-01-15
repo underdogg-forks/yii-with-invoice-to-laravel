@@ -6,10 +6,12 @@ use App\Http\Middleware\SecurityHeadersMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Config;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class SecurityHeadersMiddlewareTest extends TestCase
 {
+    #[Test]
     public function it_adds_security_headers_to_response(): void
     {
         // Arrange
@@ -33,6 +35,7 @@ class SecurityHeadersMiddlewareTest extends TestCase
         $this->assertEquals('1; mode=block', $response->headers->get('X-XSS-Protection'));
     }
 
+    #[Test]
     public function it_applies_all_configured_headers(): void
     {
         // Arrange
