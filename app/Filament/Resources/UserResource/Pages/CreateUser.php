@@ -3,34 +3,11 @@
 namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
-use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
-
-    public function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('User Information')
-                    ->schema([
-                        Forms\Components\TextInput::make('login')
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('email')
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('password')
-                            ->password()
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\Toggle::make('tfa_enabled')
-                            ->default(false),
-                    ])
-                    ->columns(2),
-            ]);
-    }
 
     protected function getRedirectUrl(): string
     {
