@@ -64,7 +64,7 @@ class CustomFieldController extends Controller
             'custom_field_order' => 'nullable|integer',
         ]);
         
-        $dto = new CustomFieldDTO(custom_field_id: $id, ...$validated);
+        $dto = new CustomFieldDTO(...array_merge(['custom_field_id' => $id], $validated));
         $this->customFieldService->update($dto);
         
         return redirect()

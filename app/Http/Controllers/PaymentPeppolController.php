@@ -67,7 +67,7 @@ class PaymentPeppolController extends Controller
             'provider' => 'required|max:20',
         ]);
 
-        $dto = new PaymentPeppolDTO(id: $id, ...$validated);
+        $dto = new PaymentPeppolDTO(...array_merge(['id' => $id], $validated));
         $this->service->update($id, $dto);
 
         return redirect()->route('paymentpeppol.index')

@@ -92,7 +92,7 @@ class ClientPeppolController extends Controller
             'buyer_reference' => 'required|max:20',
         ]);
 
-        $dto = new ClientPeppolDTO(id: $id, ...$validated);
+        $dto = new ClientPeppolDTO(...array_merge(['id' => $id], $validated));
         $this->service->update($id, $dto);
 
         return redirect()->route('clientpeppol.index')

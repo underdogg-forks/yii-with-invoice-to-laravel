@@ -116,7 +116,7 @@ class ClientController extends Controller
             'client_group' => 'nullable|string|max:100',
         ]);
         
-        $dto = new ClientDTO(client_id: $id, ...$validated);
+        $dto = new ClientDTO(...array_merge(['client_id' => $id], $validated));
         $this->clientService->update($dto);
         
         return redirect()
