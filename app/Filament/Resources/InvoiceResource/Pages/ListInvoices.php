@@ -38,7 +38,7 @@ class ListInvoices extends ListRecords
                     ->sortable(),
                 
                 Tables\Columns\BadgeColumn::make('status')
-                    ->formatStateUsing(fn ($state) => $state->getLabel())
+                    ->formatStateUsing(fn ($state) => $state->label())
                     ->color(fn ($state) => match($state) {
                         InvoiceStatusEnum::Draft => 'gray',
                         InvoiceStatusEnum::Sent => 'warning',

@@ -18,17 +18,24 @@ class CreateInvoiceNumbering extends CreateRecord
                 Forms\Components\Section::make('InvoiceNumbering Information')
                     ->schema([
                         Forms\Components\TextInput::make('name')
+                            ->required()
                             ->maxLength(255),
                         Forms\Components\TextInput::make('identifier_format')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->helperText('Use {NUMBER}, {YEAR}, {MONTH} placeholders'),
                         Forms\Components\TextInput::make('left_pad')
                             ->numeric()
-                            ->default(0),
-                        Forms\Components\Select::make('next_id')
-                            ->relationship('next', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->required(),
+                            ->required()
+                            ->default(4)
+                            ->minValue(0)
+                            ->maxValue(10)
+                            ->helperText('Number of digits to pad (e.g., 4 = 0001)'),
+                        Forms\Components\TextInput::make('next_id')
+                            ->numeric()
+                            ->required()
+                            ->default(1)
+                            ->minValue(1)
+                            ->label('Next Invoice Number'),
                     ])
                     ->columns(2),
             ]);

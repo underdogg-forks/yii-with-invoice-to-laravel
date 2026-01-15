@@ -39,7 +39,7 @@ class ListQuotes extends ListRecords
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn ($state) => $state->getLabel())
+                    ->formatStateUsing(fn ($state) => $state->label())
                     ->color(fn ($state): string => match($state) {
                         QuoteStatusEnum::Draft => 'gray',
                         QuoteStatusEnum::Sent => 'info',
