@@ -14,8 +14,9 @@ The Filament v4 admin panel has been fully implemented with 13 resources, 4 widg
 
 ### 1. Run Database Migrations
 
+From your project root directory:
+
 ```bash
-cd /home/runner/work/yii-with-invoice-to-laravel/yii-with-invoice-to-laravel
 php artisan migrate
 ```
 

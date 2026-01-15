@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\CustomFieldTypeEnum;
 use App\Filament\Resources\CustomFieldResource\Pages;
 use App\Models\CustomField;
 use Filament\Forms;
@@ -39,14 +40,7 @@ class CustomFieldResource extends Resource
                 
                 Forms\Components\Select::make('type')
                     ->required()
-                    ->options([
-                        CustomField::TYPE_TEXT => 'Text',
-                        CustomField::TYPE_TEXTAREA => 'Textarea',
-                        CustomField::TYPE_CHECKBOX => 'Checkbox',
-                        CustomField::TYPE_SELECT => 'Select',
-                        CustomField::TYPE_DATE => 'Date',
-                        CustomField::TYPE_NUMBER => 'Number',
-                    ])
+                    ->options(CustomFieldTypeEnum::options())
                     ->default(CustomField::TYPE_TEXT),
                 
                 Forms\Components\TextInput::make('order')
@@ -75,16 +69,9 @@ class CustomFieldResource extends Resource
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('type')
-                    ->formatStateUsing(fn ($state) => ucfirst($state))
+                    ->formatStateUsing(fn ($state) => CustomFieldTypeEnum::from($state)->label())
                     ->badge()
-                    ->colors([
-                        'primary' => CustomField::TYPE_TEXT,
-                        'success' => CustomField::TYPE_TEXTAREA,
-                        'warning' => CustomField::TYPE_CHECKBOX,
-                        'info' => CustomField::TYPE_SELECT,
-                        'secondary' => CustomField::TYPE_DATE,
-                        'danger' => CustomField::TYPE_NUMBER,
-                    ]),
+                    ->color(fn (string $state): string => CustomFieldTypeEnum::from($state)->color()),
                 
                 Tables\Columns\TextColumn::make('order')
                     ->sortable(),

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\InvoiceNumberingResource\Pages;
 
 use App\Filament\Resources\InvoiceNumberingResource;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\DB;
 
 class CreateInvoiceNumbering extends CreateRecord
 {
@@ -14,13 +15,15 @@ class CreateInvoiceNumbering extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 
-    protected function mutateFormDataBeforeCreate(array $data): array
+    protected function handleRecordCreation(array $data): \Illuminate\Database\Eloquent\Model
     {
-        // Ensure only one default numbering scheme
-        if ($data['is_default'] ?? false) {
-            static::getModel()::where('is_default', true)->update(['is_default' => false]);
-        }
+        return DB::transaction(function () use ($data) {
+            // Ensure only one default numbering scheme
+            if ($data['is_default'] ?? false) {
+                static::getModel()::where('is_default', true)->update(['is_default' => false]);
+            }
 
-        return $data;
+            return static::getModel()::create($data);
+        });
     }
 }

@@ -138,11 +138,6 @@ class ClientResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('peppol')
-                    ->label('Peppol Config')
-                    ->icon('heroicon-o-cog')
-                    ->url(fn (Client $record): string => route('clients.peppol', $record))
-                    ->visible(fn (Client $record): bool => $record->active),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -171,6 +166,7 @@ class ClientResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('active', true)->count();
+        $count = static::getModel()::where('active', true)->count();
+        return $count > 0 ? (string) $count : null;
     }
 }

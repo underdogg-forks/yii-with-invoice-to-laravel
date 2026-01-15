@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\NumberingEntityTypeEnum;
 use App\Filament\Resources\InvoiceNumberingResource\Pages;
 use App\Models\InvoiceNumbering;
 use Filament\Forms;
@@ -31,6 +32,14 @@ class InvoiceNumberingResource extends Resource
                     ->required()
                     ->maxLength(100)
                     ->helperText('Descriptive name for this numbering scheme')
+                    ->columnSpan(2),
+                
+                Forms\Components\Select::make('entity_type')
+                    ->label('Entity Type')
+                    ->options(NumberingEntityTypeEnum::options())
+                    ->default(NumberingEntityTypeEnum::INVOICE->value)
+                    ->required()
+                    ->helperText('Apply this numbering scheme to Invoices, Quotes, Clients, Projects, or Tasks')
                     ->columnSpan(2),
                 
                 Forms\Components\TextInput::make('identifier_format')

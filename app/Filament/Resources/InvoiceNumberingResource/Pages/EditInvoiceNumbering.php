@@ -4,7 +4,9 @@ namespace App\Filament\Resources\InvoiceNumberingResource\Pages;
 
 use App\Filament\Resources\InvoiceNumberingResource;
 use Filament\Actions;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Support\Exceptions\Halt;
 
 class EditInvoiceNumbering extends EditRecord
 {
@@ -15,11 +17,16 @@ class EditInvoiceNumbering extends EditRecord
         return [
             Actions\ViewAction::make(),
             Actions\DeleteAction::make()
-                ->action(function () {
+                ->before(function () {
                     if ($this->record->invoices()->count() > 0) {
-                        throw new \Exception('Cannot delete numbering scheme with associated invoices.');
+                        Notification::make()
+                            ->danger()
+                            ->title('Cannot delete numbering scheme')
+                            ->body('This numbering scheme has associated invoices and cannot be deleted.')
+                            ->send();
+                        
+                        throw new Halt();
                     }
-                    $this->record->delete();
                 }),
         ];
     }
