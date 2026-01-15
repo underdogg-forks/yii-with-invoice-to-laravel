@@ -104,14 +104,15 @@ class ReportResource extends Resource
                 Tables\Columns\TextColumn::make('type')
                     ->badge()
                     ->formatStateUsing(fn ($state) => $state->label())
-                    ->colors([
-                        'success' => ReportTypeEnum::PROFIT->value,
-                        'info' => ReportTypeEnum::SALES->value,
-                        'warning' => ReportTypeEnum::INVENTORY->value,
-                        'danger' => ReportTypeEnum::TAX->value,
-                        'primary' => ReportTypeEnum::CLIENT->value,
-                        'gray' => ReportTypeEnum::PRODUCT->value,
-                    ])
+                    ->color(fn ($state) => match ($state) {
+                        ReportTypeEnum::PROFIT => 'success',
+                        ReportTypeEnum::SALES => 'info',
+                        ReportTypeEnum::INVENTORY => 'warning',
+                        ReportTypeEnum::TAX => 'danger',
+                        ReportTypeEnum::CLIENT => 'primary',
+                        ReportTypeEnum::PRODUCT => 'gray',
+                        default => 'gray',
+                    })
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('generator.name')

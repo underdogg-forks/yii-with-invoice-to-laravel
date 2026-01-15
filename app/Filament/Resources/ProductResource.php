@@ -58,7 +58,7 @@ class ProductResource extends Resource
                             ->label('Price')
                             ->numeric()
                             ->required()
-                            ->prefix('$')
+                            ->prefix(config('app.currency_symbol', '$'))
                             ->minValue(0)
                             ->columnSpan(1),
                         
