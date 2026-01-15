@@ -304,7 +304,7 @@ The following sections contain documentation from the original Yii3 implementati
 
 **Recent Implementations (Yii3)**
 
-[VitePress Integration.](https://vitepress.dev/guide/getting-started) (Dec 2025)
+[VitePress Integration.](https://vitepress.dev/guide/getting-started) (Dec 2024)
 
 [Prometheus Integration.](docs/PROMETHEUS_INTEGRATION.md) (Dec 2025)
 
