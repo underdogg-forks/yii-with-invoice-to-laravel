@@ -143,14 +143,15 @@ class QuoteResource extends Resource
                 Tables\Columns\BadgeColumn::make('status_id')
                     ->label('Status')
                     ->formatStateUsing(fn ($state) => QuoteStatusEnum::forSelect()[$state] ?? 'Unknown')
-                    ->colors([
-                        'secondary' => QuoteStatusEnum::DRAFT->value,
-                        'info' => QuoteStatusEnum::SENT->value,
-                        'warning' => QuoteStatusEnum::VIEWED->value,
-                        'success' => QuoteStatusEnum::APPROVED->value,
-                        'danger' => QuoteStatusEnum::REJECTED->value,
-                        'danger' => QuoteStatusEnum::EXPIRED->value,
-                    ]),
+                    ->color(fn ($state): string => match($state) {
+                        QuoteStatusEnum::DRAFT->value => 'secondary',
+                        QuoteStatusEnum::SENT->value => 'info',
+                        QuoteStatusEnum::VIEWED->value => 'warning',
+                        QuoteStatusEnum::APPROVED->value => 'success',
+                        QuoteStatusEnum::REJECTED->value => 'danger',
+                        QuoteStatusEnum::EXPIRED->value => 'danger',
+                        default => 'secondary',
+                    }),
                 
                 Tables\Columns\TextColumn::make('total_amount')
                     ->money('USD')
