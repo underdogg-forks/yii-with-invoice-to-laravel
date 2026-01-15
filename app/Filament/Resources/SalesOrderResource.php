@@ -143,9 +143,10 @@ class SalesOrderResource extends Resource
                     ->date()
                     ->sortable(),
                 
-                Tables\Columns\BadgeColumn::make('status_id')
+                Tables\Columns\TextColumn::make('status_id')
                     ->label('Status')
                     ->formatStateUsing(fn ($state) => SalesOrderStatusEnum::forSelect()[$state] ?? 'Unknown')
+                    ->badge()
                     ->colors([
                         'secondary' => SalesOrderStatusEnum::PENDING->value,
                         'info' => SalesOrderStatusEnum::CONFIRMED->value,

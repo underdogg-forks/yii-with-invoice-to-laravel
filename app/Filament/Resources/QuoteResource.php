@@ -140,9 +140,10 @@ class QuoteResource extends Resource
                     ->date()
                     ->sortable(),
                 
-                Tables\Columns\BadgeColumn::make('status_id')
+                Tables\Columns\TextColumn::make('status_id')
                     ->label('Status')
                     ->formatStateUsing(fn ($state) => QuoteStatusEnum::forSelect()[$state] ?? 'Unknown')
+                    ->badge()
                     ->color(fn ($state): string => match($state) {
                         QuoteStatusEnum::DRAFT->value => 'secondary',
                         QuoteStatusEnum::SENT->value => 'info',

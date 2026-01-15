@@ -74,8 +74,9 @@ class CustomFieldResource extends Resource
                     ->searchable()
                     ->sortable(),
                 
-                Tables\Columns\BadgeColumn::make('type')
+                Tables\Columns\TextColumn::make('type')
                     ->formatStateUsing(fn ($state) => ucfirst($state))
+                    ->badge()
                     ->colors([
                         'primary' => CustomField::TYPE_TEXT,
                         'success' => CustomField::TYPE_TEXTAREA,
