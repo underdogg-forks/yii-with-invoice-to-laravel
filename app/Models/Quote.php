@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\QuoteStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,33 +14,9 @@ class Quote extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'quotes';
+    public $timestamps = true;
 
-    protected $fillable = [
-        'quote_number',
-        'client_id',
-        'user_id',
-        'status_id',
-        'quote_date',
-        'expiry_date',
-        'subtotal',
-        'tax_total',
-        'discount_amount',
-        'discount_percent',
-        'total_amount',
-        'notes',
-        'terms_and_conditions',
-        'url_key',
-        'password',
-        'is_read_only',
-        'approved_by',
-        'approved_at',
-        'rejected_by',
-        'rejected_at',
-        'rejection_reason',
-        'sent_at',
-        'viewed_at',
-    ];
+    protected $table = 'quotes';
 
     protected $casts = [
         'quote_date' => 'date',
@@ -54,9 +31,27 @@ class Quote extends Model
         'discount_percent' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'is_read_only' => 'boolean',
+        'status' => QuoteStatusEnum::class,
     ];
 
-    // Relationships
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
@@ -65,11 +60,6 @@ class Quote extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function status(): BelongsTo
-    {
-        return $this->belongsTo(QuoteStatus::class, 'status_id');
     }
 
     public function approvedBy(): BelongsTo
@@ -87,63 +77,97 @@ class Quote extends Model
         return $this->hasOne(SalesOrder::class);
     }
 
-    // Scopes
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
     public function scopeDraft($query)
     {
-        return $query->where('status_id', QuoteStatus::STATUS_DRAFT);
+        return $query->where('status', QuoteStatusEnum::Draft);
     }
 
     public function scopeSent($query)
     {
-        return $query->where('status_id', QuoteStatus::STATUS_SENT);
+        return $query->where('status', QuoteStatusEnum::Sent);
     }
 
     public function scopeApproved($query)
     {
-        return $query->where('status_id', QuoteStatus::STATUS_APPROVED);
+        return $query->where('status', QuoteStatusEnum::Approved);
     }
 
     public function scopeRejected($query)
     {
-        return $query->where('status_id', QuoteStatus::STATUS_REJECTED);
+        return $query->where('status', QuoteStatusEnum::Rejected);
     }
 
     public function scopeExpired($query)
     {
-        return $query->where('status_id', QuoteStatus::STATUS_EXPIRED)
+        return $query->where('status', QuoteStatusEnum::Expired)
             ->orWhere(function ($q) {
                 $q->where('expiry_date', '<', now())
-                    ->whereNotIn('status_id', [QuoteStatus::STATUS_APPROVED, QuoteStatus::STATUS_REJECTED]);
+                    ->whereNotIn('status', [QuoteStatusEnum::Approved, QuoteStatusEnum::Rejected]);
             });
     }
 
     public function scopeActive($query)
     {
-        return $query->whereIn('status_id', [QuoteStatus::STATUS_DRAFT, QuoteStatus::STATUS_SENT, QuoteStatus::STATUS_VIEWED]);
+        return $query->whereIn('status', [QuoteStatusEnum::Draft, QuoteStatusEnum::Sent, QuoteStatusEnum::Viewed]);
     }
 
-    // Helper methods
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
+
     public function isExpired(): bool
     {
         return $this->expiry_date && $this->expiry_date->isPast() 
-            && !in_array($this->status_id, [QuoteStatus::STATUS_APPROVED, QuoteStatus::STATUS_REJECTED]);
+            && !in_array($this->status, [QuoteStatusEnum::Approved, QuoteStatusEnum::Rejected]);
     }
 
     public function canBeApproved(): bool
     {
-        return in_array($this->status_id, [QuoteStatus::STATUS_SENT, QuoteStatus::STATUS_VIEWED])
+        return in_array($this->status, [QuoteStatusEnum::Sent, QuoteStatusEnum::Viewed])
             && !$this->isExpired();
     }
 
     public function canBeRejected(): bool
     {
-        return in_array($this->status_id, [QuoteStatus::STATUS_SENT, QuoteStatus::STATUS_VIEWED])
-            && $this->status_id != QuoteStatus::STATUS_APPROVED;
+        return in_array($this->status, [QuoteStatusEnum::Sent, QuoteStatusEnum::Viewed])
+            && $this->status != QuoteStatusEnum::Approved;
     }
 
     public function canBeConverted(): bool
     {
-        return $this->status_id == QuoteStatus::STATUS_APPROVED 
+        return $this->status == QuoteStatusEnum::Approved 
             && !$this->salesOrder()->exists();
     }
 
@@ -151,4 +175,6 @@ class Quote extends Model
     {
         return bin2hex(random_bytes(32));
     }
+
+    #endregion
 }

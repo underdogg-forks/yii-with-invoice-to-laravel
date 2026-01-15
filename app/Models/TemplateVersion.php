@@ -10,18 +10,29 @@ class TemplateVersion extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'template_id',
-        'version_number',
-        'content',
-        'subject',
-        'change_summary',
-        'created_by',
-    ];
+    public $timestamps = true;
 
     protected $casts = [
         'version_number' => 'integer',
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Get the template this version belongs to
@@ -38,4 +49,33 @@ class TemplateVersion extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
 }

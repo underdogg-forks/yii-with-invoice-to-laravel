@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\InvoiceStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,42 +13,9 @@ class Invoice extends Model
 {
     use HasFactory;
 
-    protected $table = 'invoices';
+    public $timestamps = true;
 
-    protected $fillable = [
-        'number',
-        'client_id',
-        'numbering_id',
-        'status_id',
-        'date_created',
-        'date_modified',
-        'date_supplied',
-        'date_due',
-        'date_tax_point',
-        'date_paid_off',
-        'quote_id',
-        'so_id',
-        'creditinvoice_parent_id',
-        'delivery_id',
-        'delivery_location_id',
-        'postal_address_id',
-        'contract_id',
-        'discount_amount',
-        'discount_percent',
-        'url_key',
-        'password',
-        'payment_method',
-        'terms',
-        'note',
-        'document_description',
-        'stand_in_code',
-        'is_read_only',
-        // Legacy fields
-        'invoice_number',
-        'date_issued',
-        'total_amount',
-        'status',
-    ];
+    protected $table = 'invoices';
 
     protected $casts = [
         'date_created' => 'date',
@@ -62,7 +30,26 @@ class Invoice extends Model
         'total_amount' => 'decimal:2',
         'is_read_only' => 'boolean',
         'client_id' => 'integer',
+        'status' => InvoiceStatusEnum::class,
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     public function client(): BelongsTo
     {
@@ -72,11 +59,6 @@ class Invoice extends Model
     public function numbering(): BelongsTo
     {
         return $this->belongsTo(InvoiceNumbering::class, 'numbering_id');
-    }
-
-    public function status(): BelongsTo
-    {
-        return $this->belongsTo(InvoiceStatus::class, 'status_id');
     }
 
     public function items(): HasMany
@@ -93,6 +75,42 @@ class Invoice extends Model
     {
         return $this->hasMany(PaymentPeppol::class, 'inv_id');
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Check if invoice is overdue
@@ -111,7 +129,7 @@ class Invoice extends Model
      */
     public function isPaid(): bool
     {
-        return $this->status === 'paid' || ($this->status_id && $this->status_id === 4);
+        return $this->status === InvoiceStatusEnum::Paid;
     }
 
     /**
@@ -121,4 +139,6 @@ class Invoice extends Model
     {
         return bin2hex(random_bytes(16));
     }
+
+    #endregion
 }

@@ -10,16 +10,7 @@ class InvoiceAmount extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'invoice_id',
-        'item_subtotal',
-        'item_tax_total',
-        'tax_total',
-        'discount',
-        'total',
-        'paid',
-        'balance',
-    ];
+    public $timestamps = true;
 
     protected $casts = [
         'item_subtotal' => 'decimal:2',
@@ -31,10 +22,64 @@ class InvoiceAmount extends Model
         'balance' => 'decimal:2',
     ];
 
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class);
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Recalculate all amounts from invoice items
@@ -69,4 +114,6 @@ class InvoiceAmount extends Model
             'balance' => $balance,
         ]);
     }
+
+    #endregion
 }

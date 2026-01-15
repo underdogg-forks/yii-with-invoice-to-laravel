@@ -2,29 +2,41 @@
 
 namespace App\Models;
 
+use App\Enums\ReportTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Report extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = [
-        'name',
-        'type', // profit_analysis, sales_summary, inventory_report, custom
-        'description',
-        'parameters', // JSON for report parameters (date range, filters, etc.)
-        'file_path',
-        'generated_by',
-        'generated_at',
-    ];
+    public $timestamps = true;
 
     protected $casts = [
-        'parameters' => 'array',
         'generated_at' => 'datetime',
+        'type' => ReportTypeEnum::class,
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Get the user who generated this report
@@ -33,6 +45,41 @@ class Report extends Model
     {
         return $this->belongsTo(User::class, 'generated_by');
     }
+
+    /**
+     * Get all parameters for this report
+     */
+    public function parameters(): HasMany
+    {
+        return $this->hasMany(ReportParameter::class);
+    }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Scope: Filter by type
@@ -58,12 +105,22 @@ class Report extends Model
         return $query->where('generated_at', '>=', now()->subDays($days));
     }
 
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
+
     /**
      * Get parameter value
      */
     public function getParameter(string $key, $default = null)
     {
-        return $this->parameters[$key] ?? $default;
+        $param = $this->parameters()->where('key', $key)->first();
+        return $param ? $param->value : $default;
     }
 
     /**
@@ -73,4 +130,6 @@ class Report extends Model
     {
         return $this->file_path && file_exists(storage_path('app/' . $this->file_path));
     }
+
+    #endregion
 }

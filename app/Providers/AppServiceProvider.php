@@ -40,6 +40,12 @@ use App\Services\TemplateBuilderService;
 use App\Services\ReportService;
 use App\Services\EmailTrackingService;
 use App\Services\NotificationService;
+use App\Services\Helpers\CurrencyConverter;
+use App\Services\Helpers\DateHelper;
+use App\Services\Helpers\NumberFormatter;
+use App\Services\Helpers\ValidationHelper;
+use App\Services\Helpers\FileHelper;
+use App\Services\Helpers\AuditHelper;
 use PragmaRX\Google2FA\Google2FA;
 
 class AppServiceProvider extends ServiceProvider
@@ -94,6 +100,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(UblXmlService::class);
         $this->app->singleton(UnitPeppolService::class);
         $this->app->singleton(UserService::class);
+
+        // Register Helper Services
+        $this->app->singleton(AuditHelper::class);
+        $this->app->singleton(CurrencyConverter::class);
+        $this->app->singleton(DateHelper::class);
+        $this->app->singleton(FileHelper::class);
+        $this->app->singleton(NumberFormatter::class);
+        $this->app->singleton(ValidationHelper::class);
     }
 
     /**

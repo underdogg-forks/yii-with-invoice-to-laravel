@@ -2,33 +2,91 @@
 
 namespace App\Models;
 
+use App\Enums\TemplateVariableTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TemplateVariable extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'name',
-        'key',
-        'description',
-        'type', // string, number, date, array, object
-        'default_value',
-        'is_required',
-        'applicable_to', // JSON array of template types
-    ];
+    public $timestamps = true;
 
     protected $casts = [
-        'applicable_to' => 'array',
         'is_required' => 'boolean',
+        'type' => TemplateVariableTypeEnum::class,
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get applicabilities for this template variable
+     */
+    public function applicabilities(): HasMany
+    {
+        return $this->hasMany(TemplateVariableApplicability::class);
+    }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Check if variable is applicable to a template type
      */
     public function isApplicableTo(string $templateType): bool
     {
-        return in_array($templateType, $this->applicable_to ?? []);
+        return $this->applicabilities()->where('applicable_type', $templateType)->exists();
     }
+
+    #endregion
 }

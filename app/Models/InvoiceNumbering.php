@@ -10,24 +10,23 @@ class InvoiceNumbering extends Model
 {
     use HasFactory;
 
-    protected $table = 'invoice_numbering';
+    public $timestamps = true;
 
-    protected $fillable = [
-        'name',
-        'identifier_format',
-        'next_id',
-        'left_pad',
-    ];
+    protected $table = 'invoice_numbering';
 
     protected $casts = [
         'next_id' => 'integer',
         'left_pad' => 'integer',
     ];
 
-    public function invoices(): HasMany
-    {
-        return $this->hasMany(Invoice::class, 'numbering_id');
-    }
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Generate next invoice number for this numbering scheme
@@ -57,4 +56,47 @@ class InvoiceNumbering extends Model
             return $number;
         });
     }
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class, 'numbering_id');
+    }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
 }

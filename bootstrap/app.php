@@ -12,6 +12,27 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Web middleware
+        $middleware->web(append: [
+            \App\Http\Middleware\LocalizationMiddleware::class,
+            \App\Http\Middleware\SecurityHeadersMiddleware::class,
+            \App\Http\Middleware\PerformanceMonitoringMiddleware::class,
+        ]);
+        
+        // API middleware
+        $middleware->api(append: [
+            \App\Http\Middleware\ApiVersionMiddleware::class,
+            \App\Http\Middleware\SecurityHeadersMiddleware::class,
+            \App\Http\Middleware\RequestSanitizerMiddleware::class,
+            \App\Http\Middleware\PerformanceMonitoringMiddleware::class,
+        ]);
+        
+        // Alias middleware for route-level usage
+        $middleware->alias([
+            'activity.log' => \App\Http\Middleware\ActivityLogMiddleware::class,
+            'tenant' => \App\Http\Middleware\TenantMiddleware::class,
+            'rate.limit.user' => \App\Http\Middleware\RateLimitByUserMiddleware::class,
+        ]);
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {

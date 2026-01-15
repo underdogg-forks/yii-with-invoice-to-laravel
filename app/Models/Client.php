@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\Addressable;
+use App\Traits\Communicable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,42 +12,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Client extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Addressable, Communicable;
+
+    public $timestamps = true;
 
     protected $table = 'clients';
-
-    protected $fillable = [
-        'name',
-        'surname',
-        'full_name',
-        'email',
-        'mobile',
-        'phone',
-        'fax',
-        'title',
-        'address_1',
-        'address_2',
-        'building_number',
-        'city',
-        'state',
-        'zip',
-        'country',
-        'web',
-        'vat_id',
-        'tax_code',
-        'language',
-        'active',
-        'number',
-        'group',
-        'frequency',
-        'avs',
-        'insured_number',
-        'veka',
-        'birthdate',
-        'age',
-        'gender',
-        'postal_address_id',
-    ];
 
     protected $casts = [
         'active' => 'boolean',
@@ -54,19 +25,26 @@ class Client extends Model
         'birthdate' => 'date',
     ];
 
+    protected $guarded = [];
+
     protected $appends = ['computed_full_name'];
 
-    public function getComputedFullNameAttribute(): string
-    {
-        if ($this->full_name) {
-            return $this->full_name;
-        }
-        
-        $parts = array_filter([$this->name, $this->surname]);
-        return implode(' ', $parts);
-    }
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
 
-    // Relationships
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function peppol(): HasOne
     {
         return $this->hasOne(ClientPeppol::class, 'client_id');
@@ -87,7 +65,43 @@ class Client extends Model
         return $this->hasMany(ProductClient::class, 'client_id');
     }
 
-    // Scopes
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    public function getComputedFullNameAttribute(): string
+    {
+        if ($this->full_name) {
+            return $this->full_name;
+        }
+        
+        $parts = array_filter([$this->name, $this->surname]);
+        return implode(' ', $parts);
+    }
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
     public function scopeActive($query)
     {
         return $query->where('active', true);
@@ -112,4 +126,6 @@ class Client extends Model
               ->orWhere('number', 'like', "%{$search}%");
         });
     }
+
+    #endregion
 }

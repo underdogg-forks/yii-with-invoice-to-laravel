@@ -485,3 +485,239 @@ php artisan config:clear
 - Write descriptive test names with it_*
 - Update documentation as you go
 - Security first, always
+
+## UI Development Guidelines (Phase 8+)
+
+### Laravel Filament v4
+
+**When creating admin interfaces, always use Filament v4:**
+
+#### Resource Creation
+- Create Filament Resources for all database models
+- Keep resources thin - delegate business logic to Services
+- Use Filament's built-in features (filters, search, bulk actions)
+- Follow Filament naming conventions
+
+Example:
+```php
+class InvoiceResource extends Resource
+{
+    protected static ?string $model = Invoice::class;
+    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationGroup = 'Sales';
+    
+    public static function form(Form $form): Form
+    {
+        return $form->schema([
+            Select::make('client_id')
+                ->relationship('client', 'name')
+                ->searchable()
+                ->required(),
+            TextInput::make('invoice_number')->required(),
+            DatePicker::make('issue_date')->required(),
+            Repeater::make('items')
+                ->relationship()
+                ->schema([
+                    Select::make('product_id')->relationship('product', 'name'),
+                    TextInput::make('quantity')->numeric(),
+                    TextInput::make('price')->numeric()->prefix('$'),
+                ]),
+        ]);
+    }
+}
+```
+
+#### Widget Creation
+- Use widgets for dashboard statistics
+- Cache expensive queries
+- Keep widgets focused on presentation
+
+Example:
+```php
+class RevenueChartWidget extends ChartWidget
+{
+    protected function getData(): array
+    {
+        return Cache::remember('revenue-chart', 3600, function () {
+            // Query and format data
+        });
+    }
+}
+```
+
+#### Custom Actions
+- Use Filament actions for operations
+- Delegate to services for business logic
+- Provide user feedback with notifications
+
+Example:
+```php
+Action::make('sendEmail')
+    ->icon('heroicon-o-envelope')
+    ->action(function (Invoice $record) {
+        app(EmailService::class)->sendInvoice($record);
+        Notification::make()
+            ->success()
+            ->title('Email sent')
+            ->send();
+    });
+```
+
+### Blade Templates
+
+**Always use Blade instead of plain PHP for views:**
+
+#### Blade Directives
+```blade
+{{-- ✅ Good - Use Blade syntax --}}
+@if ($invoice->isPaid())
+    <span class="badge-success">Paid</span>
+@else
+    <span class="badge-warning">Pending</span>
+@endif
+
+@foreach ($invoices as $invoice)
+    <x-invoice.card :invoice="$invoice" />
+@endforeach
+
+{{-- ❌ Bad - Don't use PHP tags --}}
+<?php foreach ($invoices as $invoice): ?>
+    ...
+<?php endforeach; ?>
+```
+
+#### Blade Components
+Create reusable components:
+```blade
+{{-- Define: resources/views/components/invoice/header.blade.php --}}
+<div class="invoice-header">
+    <h2>{{ $invoice->invoice_number }}</h2>
+    <p>{{ $invoice->client->name }}</p>
+</div>
+
+{{-- Use: --}}
+<x-invoice.header :invoice="$invoice" />
+```
+
+#### Data Escaping
+```blade
+{{-- Automatic escaping --}}
+{{ $user->name }}
+
+{{-- Raw HTML (only for trusted content) --}}
+{!! $content !!}
+
+{{-- JSON for JavaScript --}}
+<script>
+    const data = @json($data);
+</script>
+```
+
+### View Structure
+
+#### Layouts
+```blade
+{{-- resources/views/layouts/app.blade.php --}}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@yield('title', 'Invoice App')</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body>
+    <nav>@include('partials.navigation')</nav>
+    
+    <main>
+        @yield('content')
+    </main>
+    
+    <footer>@include('partials.footer')</footer>
+</body>
+</html>
+
+{{-- Use in pages --}}
+@extends('layouts.app')
+
+@section('title', 'Invoices')
+
+@section('content')
+    <h1>Invoices</h1>
+    {{-- content here --}}
+@endsection
+```
+
+### Component Best Practices
+
+1. **Anonymous Components** - For simple, single-use components
+2. **Class-based Components** - For complex logic
+3. **Slot Usage** - For flexible content
+4. **Props Typing** - Use type hints
+
+Example class-based component:
+```php
+<?php
+
+namespace App\View\Components\Invoice;
+
+use App\Models\Invoice;
+use Illuminate\View\Component;
+use Illuminate\View\View;
+
+class Header extends Component
+{
+    public function __construct(
+        public Invoice $invoice
+    ) {}
+    
+    public function render(): View
+    {
+        return view('components.invoice.header');
+    }
+}
+```
+
+### Filament & Blade Integration
+
+1. **Use Filament for Admin Panel** - All CRUD operations
+2. **Use Blade for Public Pages** - Customer-facing pages
+3. **Share Components** - Reuse Blade components in both
+4. **Consistent Styling** - Tailwind CSS throughout
+
+### Testing
+
+```php
+// Filament resource testing
+public function it_can_render_invoice_list(): void
+{
+    $this->actingAs(User::factory()->create());
+    
+    Livewire::test(InvoiceResource\Pages\ListInvoices::class)
+        ->assertSuccessful();
+}
+
+// Blade component testing
+public function it_renders_invoice_header(): void
+{
+    $invoice = Invoice::factory()->create();
+    
+    $view = $this->blade(
+        '<x-invoice.header :invoice="$invoice" />',
+        ['invoice' => $invoice]
+    );
+    
+    $view->assertSee($invoice->invoice_number);
+}
+```
+
+### Migration from Plain PHP
+
+When converting existing PHP views to Blade:
+
+1. **Replace `<?= ?>` with `{{ }}`**
+2. **Replace `<?php if: ?>` with `@if`**
+3. **Replace `<?php foreach: ?>` with `@foreach`**
+4. **Extract repeated HTML to components**
+5. **Use layouts instead of includes**
+6. **Add proper CSRF protection** - `@csrf`
+7. **Use route helpers** - `route('name')`
+

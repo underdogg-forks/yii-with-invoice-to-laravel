@@ -426,3 +426,272 @@ class ClientPeppolPolicy
 - Update tests as requirements change
 - Document lessons learned
 - Use clear, semantic naming for better maintainability
+
+## UI Development with Filament & Blade
+
+### Filament v4 Guidelines
+
+#### Resource Creation
+```php
+// ✅ Good - Keep resources thin, delegate to services
+class InvoiceResource extends Resource
+{
+    public static function form(Form $form): Form
+    {
+        return $form->schema([
+            TextInput::make('invoice_number')->required(),
+            Select::make('client_id')
+                ->relationship('client', 'name')
+                ->searchable()
+                ->required(),
+            // ... more fields
+        ]);
+    }
+    
+    // Use services for business logic
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListInvoices::route('/'),
+            'create' => Pages\CreateInvoice::route('/create'),
+            'edit' => Pages\EditInvoice::route('/{record}/edit'),
+        ];
+    }
+}
+```
+
+#### Custom Actions
+```php
+// ✅ Good - Use services for complex operations
+Action::make('sendEmail')
+    ->action(function (Invoice $record) {
+        app(EmailService::class)->sendInvoice($record);
+        Notification::make()
+            ->success()
+            ->title('Email sent successfully')
+            ->send();
+    });
+```
+
+#### Widget Best Practices
+```php
+// ✅ Good - Cache expensive queries
+class RevenueChartWidget extends ChartWidget
+{
+    protected static ?int $sort = 1;
+    
+    protected function getData(): array
+    {
+        return Cache::remember('revenue-chart-data', 3600, function () {
+            // Expensive query here
+            return $this->generateChartData();
+        });
+    }
+}
+```
+
+### Blade Template Guidelines
+
+#### Use Blade Directives
+```blade
+{{-- ✅ Good - Use Blade syntax --}}
+@if ($invoice->isPaid())
+    <span class="badge badge-success">Paid</span>
+@else
+    <span class="badge badge-warning">Pending</span>
+@endif
+
+{{-- ❌ Bad - Don't use PHP tags in Blade --}}
+<?php if ($invoice->isPaid()): ?>
+    <span class="badge badge-success">Paid</span>
+<?php endif; ?>
+```
+
+#### Component Usage
+```blade
+{{-- ✅ Good - Use Blade components --}}
+<x-invoice.header :invoice="$invoice" />
+
+<x-invoice.items-table :items="$invoice->items" />
+
+<x-invoice.totals 
+    :subtotal="$invoice->subtotal"
+    :tax="$invoice->tax_total"
+    :total="$invoice->total"
+/>
+
+{{-- Include footer if needed --}}
+@include('invoices.partials.footer')
+```
+
+#### Data Escaping
+```blade
+{{-- ✅ Good - Automatic escaping --}}
+<h1>{{ $invoice->client->name }}</h1>
+
+{{-- Only use {!! !!} for trusted HTML --}}
+<div class="content">
+    {!! $invoice->notes !!}
+</div>
+
+{{-- Use @json for JavaScript --}}
+<script>
+    const invoiceData = @json($invoice);
+</script>
+```
+
+### Filament Form Components
+
+#### Custom Field Types
+```php
+// Use appropriate field types
+TextInput::make('invoice_number')
+    ->required()
+    ->unique(ignoreRecord: true)
+    ->maxLength(255);
+
+DatePicker::make('issue_date')
+    ->required()
+    ->default(now());
+
+Select::make('status')
+    ->options(InvoiceStatus::all()->pluck('name', 'id'))
+    ->required();
+
+Textarea::make('notes')
+    ->rows(3)
+    ->columnSpanFull();
+
+Repeater::make('items')
+    ->relationship()
+    ->schema([
+        Select::make('product_id')
+            ->relationship('product', 'name')
+            ->searchable(),
+        TextInput::make('quantity')
+            ->numeric()
+            ->required(),
+        TextInput::make('price')
+            ->numeric()
+            ->prefix('$'),
+    ]);
+```
+
+#### Relationship Fields
+```php
+// ✅ Good - Searchable relationships
+Select::make('client_id')
+    ->relationship('client', 'name')
+    ->searchable()
+    ->preload()
+    ->createOptionForm([
+        TextInput::make('name')->required(),
+        TextInput::make('email')->email(),
+    ])
+    ->required();
+```
+
+### Filament Table Configuration
+
+```php
+public static function table(Table $table): Table
+{
+    return $table
+        ->columns([
+            TextColumn::make('invoice_number')
+                ->searchable()
+                ->sortable(),
+            TextColumn::make('client.name')
+                ->searchable()
+                ->sortable(),
+            TextColumn::make('total')
+                ->money('usd')
+                ->sortable(),
+            TextColumn::make('status.name')
+                ->badge()
+                ->color(fn (string $state): string => match ($state) {
+                    'Paid' => 'success',
+                    'Pending' => 'warning',
+                    'Overdue' => 'danger',
+                    default => 'gray',
+                }),
+        ])
+        ->filters([
+            SelectFilter::make('status')
+                ->relationship('status', 'name'),
+            Filter::make('created_at')
+                ->form([
+                    DatePicker::make('created_from'),
+                    DatePicker::make('created_until'),
+                ]),
+        ])
+        ->actions([
+            Tables\Actions\EditAction::make(),
+            Tables\Actions\DeleteAction::make(),
+            Action::make('download')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->action(fn (Invoice $record) => 
+                    app(PdfService::class)->download($record)
+                ),
+        ])
+        ->bulkActions([
+            Tables\Actions\BulkActionGroup::make([
+                Tables\Actions\DeleteBulkAction::make(),
+                BulkAction::make('sendEmails')
+                    ->action(fn (Collection $records) =>
+                        app(EmailService::class)->sendBulk($records)
+                    ),
+            ]),
+        ]);
+}
+```
+
+### Navigation Organization
+
+```php
+// Group related resources
+protected static ?string $navigationGroup = 'Sales';
+protected static ?int $navigationSort = 1;
+protected static ?string $navigationIcon = 'heroicon-o-document-text';
+
+// Conditional navigation
+public static function shouldRegisterNavigation(): bool
+{
+    return auth()->user()->can('view_invoices');
+}
+```
+
+### Performance Optimization
+
+```php
+// ✅ Good - Eager load relationships
+public static function getEloquentQuery(): Builder
+{
+    return parent::getEloquentQuery()
+        ->with(['client', 'items.product', 'status']);
+}
+
+// Cache expensive operations
+protected function getCachedData(): array
+{
+    return Cache::remember(
+        "widget-data-{$this->getCachedDataKey()}",
+        now()->addHour(),
+        fn () => $this->fetchData()
+    );
+}
+```
+
+### Best Practices Summary
+
+1. **Keep Filament Resources Thin** - Delegate to Services
+2. **Use Blade Components** - Reusable UI elements
+3. **Leverage Filament Features** - Built-in filters, search, actions
+4. **Proper Data Escaping** - Use {{ }} by default
+5. **Cache When Possible** - Widgets and expensive queries
+6. **Type Everything** - Form fields, table columns
+7. **Use Relationships** - Don't duplicate data
+8. **Follow Naming Conventions** - Clear, semantic names
+9. **Test Filament Resources** - Livewire testing
+10. **Document Custom Components** - Inline PHPDoc
+

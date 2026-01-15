@@ -10,20 +10,70 @@ class RecoveryCode extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'code',
-        'used_at',
-    ];
+    public $timestamps = true;
 
     protected $casts = [
         'used_at' => 'datetime',
     ];
 
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Check if the code has been used
@@ -32,4 +82,6 @@ class RecoveryCode extends Model
     {
         return !is_null($this->used_at);
     }
+
+    #endregion
 }

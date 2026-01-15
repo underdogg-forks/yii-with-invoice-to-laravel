@@ -10,21 +10,33 @@ class ProductClient extends Model
 {
     use HasFactory;
 
-    protected $table = 'product_client';
+    public $timestamps = true;
 
-    protected $fillable = [
-        'product_id',
-        'client_id',
-        'price',
-        'discount_percent',
-        'is_default',
-    ];
+    protected $table = 'product_client';
 
     protected $casts = [
         'price' => 'decimal:2',
         'discount_percent' => 'decimal:2',
         'is_default' => 'boolean',
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     public function product(): BelongsTo
     {
@@ -36,6 +48,15 @@ class ProductClient extends Model
         return $this->belongsTo(Client::class, 'client_id');
     }
 
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
     /**
      * Get the final price after applying discount
      */
@@ -46,4 +67,24 @@ class ProductClient extends Model
         }
         return $this->price;
     }
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
 }

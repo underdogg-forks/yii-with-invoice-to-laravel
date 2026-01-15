@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\SalesOrderStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,34 +13,9 @@ class SalesOrder extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'sales_orders';
+    public $timestamps = true;
 
-    protected $fillable = [
-        'so_number',
-        'quote_id',
-        'client_id',
-        'user_id',
-        'status_id',
-        'order_date',
-        'expected_delivery_date',
-        'subtotal',
-        'tax_total',
-        'discount_amount',
-        'discount_percent',
-        'total_amount',
-        'notes',
-        'terms_and_conditions',
-        'url_key',
-        'password',
-        'is_read_only',
-        'confirmed_by',
-        'confirmed_at',
-        'completed_by',
-        'completed_at',
-        'cancelled_by',
-        'cancelled_at',
-        'cancellation_reason',
-    ];
+    protected $table = 'sales_orders';
 
     protected $casts = [
         'quote_date' => 'date',
@@ -55,9 +31,27 @@ class SalesOrder extends Model
         'discount_percent' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'is_read_only' => 'boolean',
+        'status' => SalesOrderStatusEnum::class,
     ];
 
-    // Relationships
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
@@ -66,11 +60,6 @@ class SalesOrder extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function status(): BelongsTo
-    {
-        return $this->belongsTo(SalesOrderStatus::class, 'status_id');
     }
 
     public function quote(): BelongsTo
@@ -93,65 +82,99 @@ class SalesOrder extends Model
         return $this->hasOne(Invoice::class, 'so_id');
     }
 
-    // Scopes
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
     public function scopePending($query)
     {
-        return $query->where('status_id', SalesOrderStatus::STATUS_PENDING);
+        return $query->where('status', SalesOrderStatusEnum::Draft);
     }
 
     public function scopeConfirmed($query)
     {
-        return $query->where('status_id', SalesOrderStatus::STATUS_CONFIRMED);
+        return $query->where('status', SalesOrderStatusEnum::Confirmed);
     }
 
     public function scopeProcessing($query)
     {
-        return $query->where('status_id', QuoteStatus::STATUS_PROCESSING);
+        return $query->where('status', SalesOrderStatusEnum::Processing);
     }
 
     public function scopeCompleted($query)
     {
-        return $query->where('status_id', SalesOrderStatus::STATUS_COMPLETED);
+        return $query->where('status', SalesOrderStatusEnum::Delivered);
     }
 
     public function scopeCancelled($query)
     {
-        return $query->where('status_id', SalesOrderStatus::STATUS_CANCELLED);
+        return $query->where('status', SalesOrderStatusEnum::Cancelled);
     }
 
     public function scopeActive($query)
     {
-        return $query->whereIn('status_id', [
-            SalesOrderStatus::STATUS_PENDING,
-            SalesOrderStatus::STATUS_CONFIRMED,
-            SalesOrderStatus::STATUS_PROCESSING,
+        return $query->whereIn('status', [
+            SalesOrderStatusEnum::Draft,
+            SalesOrderStatusEnum::Confirmed,
+            SalesOrderStatusEnum::Processing,
         ]);
     }
 
-    // Helper methods
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
+
     public function canBeConfirmed(): bool
     {
-        return $this->status_id == SalesOrderStatus::STATUS_PENDING;
+        return $this->status == SalesOrderStatusEnum::Draft;
     }
 
     public function canBeProcessed(): bool
     {
-        return $this->status_id == SalesOrderStatus::STATUS_CONFIRMED;
+        return $this->status == SalesOrderStatusEnum::Confirmed;
     }
 
     public function canBeCompleted(): bool
     {
-        return in_array($this->status_id, [SalesOrderStatus::STATUS_CONFIRMED, SalesOrderStatus::STATUS_PROCESSING]);
+        return in_array($this->status, [SalesOrderStatusEnum::Confirmed, SalesOrderStatusEnum::Processing]);
     }
 
     public function canBeCancelled(): bool
     {
-        return !in_array($this->status_id, [SalesOrderStatus::STATUS_COMPLETED, SalesOrderStatus::STATUS_CANCELLED]);
+        return !in_array($this->status, [SalesOrderStatusEnum::Delivered, SalesOrderStatusEnum::Cancelled]);
     }
 
     public function canBeConvertedToInvoice(): bool
     {
-        return $this->status_id == SalesOrderStatus::STATUS_COMPLETED 
+        return $this->status == SalesOrderStatusEnum::Delivered 
             && !$this->invoice()->exists();
     }
 
@@ -159,4 +182,6 @@ class SalesOrder extends Model
     {
         return bin2hex(random_bytes(32));
     }
+
+    #endregion
 }

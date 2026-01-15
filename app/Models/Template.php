@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\TemplateCategoryEnum;
+use App\Enums\TemplateTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,23 +14,32 @@ class Template extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = [
-        'name',
-        'slug',
-        'description',
-        'type', // email, invoice, quote, sales_order, report
-        'category', // transactional, marketing, notification, document, report
-        'subject',
-        'content',
-        'is_default',
-        'is_active',
-        'created_by',
-    ];
+    public $timestamps = true;
 
     protected $casts = [
         'is_default' => 'boolean',
         'is_active' => 'boolean',
+        'type' => TemplateTypeEnum::class,
+        'category' => TemplateCategoryEnum::class,
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Get the user who created the template
@@ -46,13 +57,32 @@ class Template extends Model
         return $this->hasMany(TemplateVersion::class);
     }
 
-    /**
-     * Get the latest version
-     */
-    public function latestVersion()
-    {
-        return $this->versions()->latest('version_number')->first();
-    }
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Scope: Active templates
@@ -86,6 +116,23 @@ class Template extends Model
         return $query->where('is_default', true);
     }
 
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get the latest version
+     */
+    public function latestVersion()
+    {
+        return $this->versions()->latest('version_number')->first();
+    }
+
     /**
      * Check if template can be deleted
      */
@@ -93,4 +140,6 @@ class Template extends Model
     {
         return !$this->is_default;
     }
+
+    #endregion
 }

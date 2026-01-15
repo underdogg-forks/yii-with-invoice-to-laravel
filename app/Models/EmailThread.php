@@ -12,15 +12,7 @@ class EmailThread extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = [
-        'subject',
-        'user_id',
-        'is_read',
-        'is_starred',
-        'is_archived',
-        'last_message_at',
-        'message_count',
-    ];
+    public $timestamps = true;
 
     protected $casts = [
         'is_read' => 'boolean',
@@ -29,6 +21,24 @@ class EmailThread extends Model
         'last_message_at' => 'datetime',
         'message_count' => 'integer',
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Get the user who owns this thread
@@ -46,13 +56,32 @@ class EmailThread extends Model
         return $this->hasMany(EmailMessage::class, 'thread_id');
     }
 
-    /**
-     * Get the latest message
-     */
-    public function latestMessage()
-    {
-        return $this->messages()->latest('sent_at')->first();
-    }
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Scope: Unread threads
@@ -84,6 +113,23 @@ class EmailThread extends Model
     public function scopeActive($query)
     {
         return $query->where('is_archived', false);
+    }
+
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get the latest message
+     */
+    public function latestMessage()
+    {
+        return $this->messages()->latest('sent_at')->first();
     }
 
     /**
@@ -125,4 +171,6 @@ class EmailThread extends Model
     {
         $this->update(['is_archived' => false]);
     }
+
+    #endregion
 }

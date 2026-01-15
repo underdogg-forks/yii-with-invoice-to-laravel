@@ -13,27 +13,7 @@ class EmailMessage extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = [
-        'thread_id',
-        'user_id',
-        'from_email',
-        'from_name',
-        'to_email',
-        'to_name',
-        'cc',
-        'bcc',
-        'subject',
-        'body',
-        'is_html',
-        'is_read',
-        'is_draft',
-        'direction', // sent or received
-        'sent_at',
-        'read_at',
-        'opened_at',
-        'related_type', // invoice, quote, sales_order, etc.
-        'related_id',
-    ];
+    public $timestamps = true;
 
     protected $casts = [
         'cc' => 'array',
@@ -45,6 +25,24 @@ class EmailMessage extends Model
         'read_at' => 'datetime',
         'opened_at' => 'datetime',
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Get the thread this message belongs to
@@ -77,6 +75,33 @@ class EmailMessage extends Model
     {
         return $this->morphTo('related');
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Scope: Sent messages
@@ -126,6 +151,15 @@ class EmailMessage extends Model
         return $query->where('thread_id', $threadId);
     }
 
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
+
     /**
      * Mark message as read
      */
@@ -160,4 +194,6 @@ class EmailMessage extends Model
     {
         return $this->direction === 'received';
     }
+
+    #endregion
 }

@@ -10,23 +10,16 @@ class CustomField extends Model
 {
     use HasFactory;
 
-    protected $table = 'custom_fields';
+    public $timestamps = true;
 
-    protected $fillable = [
-        'table_name',
-        'label',
-        'type',
-        'location',
-        'order',
-        'required',
-        'default_value',
-        'select_options',
-    ];
+    protected $table = 'custom_fields';
 
     protected $casts = [
         'required' => 'boolean',
         'order' => 'integer',
     ];
+
+    protected $guarded = [];
 
     // Available field types
     const TYPE_TEXT = 'text';
@@ -42,10 +35,53 @@ class CustomField extends Model
     const LOCATION_QUOTE = 'quote';
     const LOCATION_PRODUCT = 'product';
 
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function clientCustoms(): HasMany
     {
         return $this->hasMany(ClientCustom::class, 'custom_field_id');
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
 
     public function scopeForClients($query)
     {
@@ -56,4 +92,6 @@ class CustomField extends Model
     {
         return $query->orderBy('order', 'asc');
     }
+
+    #endregion
 }

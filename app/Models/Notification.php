@@ -11,24 +11,31 @@ class Notification extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'type',
-        'title',
-        'message',
-        'action_url',
-        'is_read',
-        'read_at',
-        'related_type',
-        'related_id',
-        'data', // JSON for additional data
-    ];
+    public $timestamps = true;
 
     protected $casts = [
         'is_read' => 'boolean',
         'read_at' => 'datetime',
         'data' => 'array',
     ];
+
+    protected $guarded = [];
+
+    #region Static Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Static Methods
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Relationships
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Get the user who owns this notification
@@ -45,6 +52,33 @@ class Notification extends Model
     {
         return $this->morphTo('related');
     }
+
+    #endregion
+
+    #region Accessors
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Mutators
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    #endregion
+
+    #region Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Scope: Unread notifications
@@ -70,6 +104,15 @@ class Notification extends Model
         return $query->where('created_at', '>=', now()->subDays($days));
     }
 
+    #endregion
+
+    #region Custom Methods
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Methods
+    |--------------------------------------------------------------------------
+    */
+
     /**
      * Mark notification as read
      */
@@ -91,4 +134,6 @@ class Notification extends Model
             'read_at' => null,
         ]);
     }
+
+    #endregion
 }
