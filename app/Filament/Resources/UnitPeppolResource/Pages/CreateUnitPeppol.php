@@ -21,11 +21,17 @@ class CreateUnitPeppol extends CreateRecord
                             ->relationship('unit', 'name')
                             ->searchable()
                             ->preload()
-                            ->required(),
+                            ->required()
+                            ->label('Unit'),
                         Forms\Components\TextInput::make('unit_peppol_code')
-                            ->maxLength(255),
+                            ->required()
+                            ->maxLength(20)
+                            ->label('Peppol Unit Code')
+                            ->helperText('UN/ECE Recommendation 20 unit code'),
                         Forms\Components\TextInput::make('unit_peppol_name')
-                            ->maxLength(255),
+                            ->required()
+                            ->maxLength(255)
+                            ->label('Peppol Unit Name'),
                     ])
                     ->columns(2),
             ]);

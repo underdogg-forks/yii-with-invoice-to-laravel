@@ -19,27 +19,27 @@ class EditPaymentPeppol extends EditRecord
                 Forms\Components\Section::make('PaymentPeppol Information')
                     ->schema([
                         Forms\Components\Select::make('inv_id')
-                            ->relationship('inv', 'name')
+                            ->relationship('invoice', 'invoice_number')
                             ->searchable()
                             ->preload()
-                            ->required(),
+                            ->required()
+                            ->label('Invoice'),
                         Forms\Components\TextInput::make('payment_means_code')
-                            ->maxLength(255),
-                        Forms\Components\Select::make('payment_id')
-                            ->relationship('payment', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->required(),
-                        Forms\Components\Select::make('account_id')
-                            ->relationship('account', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->required(),
-                        Forms\Components\Select::make('network_id')
-                            ->relationship('network', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->required(),
+                            ->required()
+                            ->maxLength(10)
+                            ->helperText('Peppol payment means code'),
+                        Forms\Components\TextInput::make('payment_id')
+                            ->maxLength(255)
+                            ->label('Payment ID')
+                            ->helperText('Payment identifier'),
+                        Forms\Components\TextInput::make('account_id')
+                            ->maxLength(255)
+                            ->label('Account ID')
+                            ->helperText('Bank account identifier'),
+                        Forms\Components\TextInput::make('network_id')
+                            ->maxLength(255)
+                            ->label('Network ID')
+                            ->helperText('Payment network identifier'),
                     ])
                     ->columns(2),
             ]);
