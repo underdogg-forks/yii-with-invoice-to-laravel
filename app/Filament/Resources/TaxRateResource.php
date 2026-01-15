@@ -67,13 +67,11 @@ class TaxRateResource extends Resource
                     ->suffix('%')
                     ->sortable(),
                 
-                Tables\Columns\BadgeColumn::make('is_default')
+                Tables\Columns\TextColumn::make('is_default')
                     ->label('Is Default')
+                    ->badge()
                     ->formatStateUsing(fn ($state) => $state ? 'Default' : 'Not Default')
-                    ->colors([
-                        'success' => true,
-                        'secondary' => false,
-                    ]),
+                    ->color(fn ($state) => $state ? 'success' : 'secondary'),
             ])
             ->filters([
                 //

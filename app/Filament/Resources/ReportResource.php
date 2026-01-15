@@ -216,6 +216,7 @@ class ReportResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::recent(7)->count();
+        $count = static::getModel()::recent(7)->count();
+        return $count === 0 ? null : (string) $count;
     }
 }

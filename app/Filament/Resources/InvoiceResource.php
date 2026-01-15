@@ -175,14 +175,16 @@ class InvoiceResource extends Resource
                     ->date()
                     ->sortable(),
                 
-                Tables\Columns\BadgeColumn::make('invoice_status_id')
+                Tables\Columns\TextColumn::make('invoice_status_id')
+                    ->badge()
                     ->formatStateUsing(fn ($state) => InvoiceStatusEnum::from($state)->getLabel())
-                    ->colors([
-                        'secondary' => InvoiceStatusEnum::DRAFT->value,
-                        'warning' => InvoiceStatusEnum::SENT->value,
-                        'success' => InvoiceStatusEnum::PAID->value,
-                        'danger' => InvoiceStatusEnum::OVERDUE->value,
-                    ]),
+                    ->color(fn ($state) => match($state) {
+                        InvoiceStatusEnum::DRAFT->value => 'secondary',
+                        InvoiceStatusEnum::SENT->value => 'warning',
+                        InvoiceStatusEnum::PAID->value => 'success',
+                        InvoiceStatusEnum::OVERDUE->value => 'danger',
+                        default => 'gray',
+                    }),
                 
                 Tables\Columns\TextColumn::make('invoice_total')
                     ->money('USD')
@@ -270,6 +272,7 @@ class InvoiceResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('invoice_status_id', InvoiceStatusEnum::DRAFT->value)->count();
+        $count = static::getModel()::where('invoice_status_id', InvoiceStatusEnum::DRAFT->value)->count();
+        return $count === 0 ? null : (string) $count;
     }
 }

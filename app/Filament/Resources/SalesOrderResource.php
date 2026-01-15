@@ -247,6 +247,7 @@ class SalesOrderResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('status_id', SalesOrderStatusEnum::PENDING->value)->count();
+        $count = static::getModel()::where('status_id', SalesOrderStatusEnum::PENDING->value)->count();
+        return $count === 0 ? null : (string) $count;
     }
 }

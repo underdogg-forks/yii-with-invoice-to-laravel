@@ -237,6 +237,7 @@ class QuoteResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('status_id', QuoteStatusEnum::DRAFT->value)->count();
+        $count = static::getModel()::where('status_id', QuoteStatusEnum::DRAFT->value)->count();
+        return $count === 0 ? null : (string) $count;
     }
 }

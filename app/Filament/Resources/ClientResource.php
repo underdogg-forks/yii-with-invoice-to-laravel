@@ -119,12 +119,10 @@ class ClientResource extends Resource
                     ->searchable()
                     ->sortable(),
                 
-                Tables\Columns\BadgeColumn::make('active')
+                Tables\Columns\TextColumn::make('active')
+                    ->badge()
                     ->formatStateUsing(fn ($state) => $state ? 'Active' : 'Inactive')
-                    ->colors([
-                        'success' => true,
-                        'danger' => false,
-                    ]),
+                    ->color(fn ($state) => $state ? 'success' : 'danger'),
                 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
