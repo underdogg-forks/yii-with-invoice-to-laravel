@@ -70,7 +70,7 @@ class UnitPeppolController extends Controller
             'description' => 'nullable',
         ]);
 
-        $dto = new UnitPeppolDTO(id: $id, ...$validated);
+        $dto = new UnitPeppolDTO(...array_merge(['id' => $id], $validated));
         $this->service->update($id, $dto);
 
         return redirect()->route('unitpeppol.index')
