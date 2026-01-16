@@ -69,14 +69,14 @@ class Tenant extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function users(): HasMany
-    {
-        return $this->hasMany(User::class);
-    }
-
     public function settings(): HasMany
     {
         return $this->hasMany(TenantSetting::class);
+    }
+
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class);
     }
 
     #endregion

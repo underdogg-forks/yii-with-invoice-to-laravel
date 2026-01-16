@@ -51,14 +51,14 @@ class Invoice extends Model
     |--------------------------------------------------------------------------
     */
 
+    public function amount(): HasOne
+    {
+        return $this->hasOne(InvoiceAmount::class);
+    }
+
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
-    }
-
-    public function numbering(): BelongsTo
-    {
-        return $this->belongsTo(InvoiceNumbering::class, 'numbering_id');
     }
 
     public function items(): HasMany
@@ -66,9 +66,9 @@ class Invoice extends Model
         return $this->hasMany(InvoiceItem::class)->orderBy('order');
     }
 
-    public function amount(): HasOne
+    public function numbering(): BelongsTo
     {
-        return $this->hasOne(InvoiceAmount::class);
+        return $this->belongsTo(InvoiceNumbering::class, 'numbering_id');
     }
 
     public function peppolPayments(): HasMany

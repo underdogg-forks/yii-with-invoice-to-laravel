@@ -35,19 +35,19 @@ class TemplateVersion extends Model
     */
 
     /**
-     * Get the template this version belongs to
-     */
-    public function template(): BelongsTo
-    {
-        return $this->belongsTo(Template::class);
-    }
-
-    /**
      * Get the user who created this version
      */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Get the template this version belongs to
+     */
+    public function template(): BelongsTo
+    {
+        return $this->belongsTo(Template::class);
     }
 
     #endregion
