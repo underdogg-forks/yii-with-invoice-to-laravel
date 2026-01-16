@@ -5,8 +5,7 @@ namespace Tests\Filament\Resources;
 use App\Filament\Resources\TaxRateResource;
 use App\Filament\Resources\TaxRateResource\Pages\ListTaxRates;
 use App\Models\TaxRate;
-use Filament\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Testing\TestsActions as TestAction;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -54,9 +53,10 @@ class TaxRateResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(TaxRateResource\Pages\CreateTaxRate::class)
+            ->test(ListTaxRates::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -83,11 +83,10 @@ class TaxRateResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(TaxRateResource\Pages\EditTaxRate::class, [
-                'record' => $taxRate->id,
-            ])
+            ->test(ListTaxRates::class)
+            ->mountAction(TestAction::make('edit')->table($taxRate))
             ->fillForm($payload)
-            ->call('save');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -110,10 +109,9 @@ class TaxRateResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(TaxRateResource\Pages\EditTaxRate::class, [
-                'record' => $taxRate->id,
-            ])
-            ->callAction(DeleteAction::class);
+            ->test(ListTaxRates::class)
+            ->mountAction(TestAction::make('delete')->table($taxRate))
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -136,9 +134,10 @@ class TaxRateResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(TaxRateResource\Pages\CreateTaxRate::class)
+            ->test(ListTaxRates::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component

@@ -6,7 +6,7 @@ use App\Filament\Resources\UnitPeppolResource;
 use App\Filament\Resources\UnitPeppolResource\Pages\ListUnitPeppols;
 use App\Models\Unit;
 use App\Models\UnitPeppol;
-use Filament\Actions\DeleteAction;
+use Filament\Tables\Testing\TestsActions as TestAction;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -60,9 +60,10 @@ class UnitPeppolResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(UnitPeppolResource\Pages\CreateUnitPeppol::class)
+            ->test(ListUnitPeppols::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -91,11 +92,10 @@ class UnitPeppolResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(UnitPeppolResource\Pages\EditUnitPeppol::class, [
-                'record' => $unitPeppol->id,
-            ])
+            ->test(ListUnitPeppols::class)
+            ->mountAction(TestAction::make('edit')->table($unitPeppol))
             ->fillForm($payload)
-            ->call('save');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -118,10 +118,9 @@ class UnitPeppolResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(UnitPeppolResource\Pages\EditUnitPeppol::class, [
-                'record' => $unitPeppol->id,
-            ])
-            ->callAction(DeleteAction::class);
+            ->test(ListUnitPeppols::class)
+            ->mountAction(TestAction::make('delete')->table($unitPeppol))
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -145,9 +144,10 @@ class UnitPeppolResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(UnitPeppolResource\Pages\CreateUnitPeppol::class)
+            ->test(ListUnitPeppols::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component

@@ -6,8 +6,7 @@ use App\Filament\Resources\ClientPeppolResource;
 use App\Filament\Resources\ClientPeppolResource\Pages\ListClientPeppols;
 use App\Models\Client;
 use App\Models\ClientPeppol;
-use Filament\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Testing\TestsActions as TestAction;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -65,9 +64,10 @@ class ClientPeppolResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(ClientPeppolResource\Pages\CreateClientPeppol::class)
+            ->test(ListClientPeppols::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -98,11 +98,10 @@ class ClientPeppolResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(ClientPeppolResource\Pages\EditClientPeppol::class, [
-                'record' => $clientPeppol->id,
-            ])
+            ->test(ListClientPeppols::class)
+            ->mountAction(TestAction::make('edit')->table($clientPeppol))
             ->fillForm($payload)
-            ->call('save');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -125,10 +124,9 @@ class ClientPeppolResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(ClientPeppolResource\Pages\EditClientPeppol::class, [
-                'record' => $clientPeppol->id,
-            ])
-            ->callAction(DeleteAction::class);
+            ->test(ListClientPeppols::class)
+            ->mountAction(TestAction::make('delete')->table($clientPeppol))
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -151,9 +149,10 @@ class ClientPeppolResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(ClientPeppolResource\Pages\CreateClientPeppol::class)
+            ->test(ListClientPeppols::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component

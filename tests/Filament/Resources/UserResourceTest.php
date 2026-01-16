@@ -5,8 +5,7 @@ namespace Tests\Filament\Resources;
 use App\Filament\Resources\UserResource;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Models\User;
-use Filament\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Testing\TestsActions as TestAction;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -55,9 +54,10 @@ class UserResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(UserResource\Pages\CreateUser::class)
+            ->test(ListUsers::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -86,11 +86,10 @@ class UserResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(UserResource\Pages\EditUser::class, [
-                'record' => $user->id,
-            ])
+            ->test(ListUsers::class)
+            ->mountAction(TestAction::make('edit')->table($user))
             ->fillForm($payload)
-            ->call('save');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -110,10 +109,9 @@ class UserResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(UserResource\Pages\EditUser::class, [
-                'record' => $user->id,
-            ])
-            ->callAction(DeleteAction::class);
+            ->test(ListUsers::class)
+            ->mountAction(TestAction::make('delete')->table($user))
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -136,9 +134,10 @@ class UserResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(UserResource\Pages\CreateUser::class)
+            ->test(ListUsers::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component

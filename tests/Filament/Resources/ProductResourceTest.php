@@ -5,7 +5,7 @@ namespace Tests\Filament\Resources;
 use App\Filament\Resources\ProductResource;
 use App\Filament\Resources\ProductResource\Pages\ListProducts;
 use App\Models\Product;
-use Filament\Actions\DeleteAction;
+use Filament\Tables\Testing\TestsActions as TestAction;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -54,9 +54,10 @@ class ProductResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(ProductResource\Pages\CreateProduct::class)
+            ->test(ListProducts::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -85,11 +86,10 @@ class ProductResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(ProductResource\Pages\EditProduct::class, [
-                'record' => $product->id,
-            ])
+            ->test(ListProducts::class)
+            ->mountAction(TestAction::make('edit')->table($product))
             ->fillForm($payload)
-            ->call('save');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -109,10 +109,9 @@ class ProductResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(ProductResource\Pages\EditProduct::class, [
-                'record' => $product->id,
-            ])
-            ->callAction(DeleteAction::class);
+            ->test(ListProducts::class)
+            ->mountAction(TestAction::make('delete')->table($product))
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -135,9 +134,10 @@ class ProductResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(ProductResource\Pages\CreateProduct::class)
+            ->test(ListProducts::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component

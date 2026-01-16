@@ -7,8 +7,7 @@ use App\Filament\Resources\QuoteResource;
 use App\Filament\Resources\QuoteResource\Pages\ListQuotes;
 use App\Models\Client;
 use App\Models\Quote;
-use Filament\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Testing\TestsActions as TestAction;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -76,9 +75,10 @@ class QuoteResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(QuoteResource\Pages\CreateQuote::class)
+            ->test(ListQuotes::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -112,11 +112,10 @@ class QuoteResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(QuoteResource\Pages\EditQuote::class, [
-                'record' => $quote->id,
-            ])
+            ->test(ListQuotes::class)
+            ->mountAction(TestAction::make('edit')->table($quote))
             ->fillForm($payload)
-            ->call('save');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -139,10 +138,9 @@ class QuoteResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(QuoteResource\Pages\EditQuote::class, [
-                'record' => $quote->id,
-            ])
-            ->callAction(DeleteAction::class);
+            ->test(ListQuotes::class)
+            ->mountAction(TestAction::make('delete')->table($quote))
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -166,9 +164,10 @@ class QuoteResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(QuoteResource\Pages\CreateQuote::class)
+            ->test(ListQuotes::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component

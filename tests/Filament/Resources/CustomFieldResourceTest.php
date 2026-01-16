@@ -5,8 +5,7 @@ namespace Tests\Filament\Resources;
 use App\Filament\Resources\CustomFieldResource;
 use App\Filament\Resources\CustomFieldResource\Pages\ListCustomFields;
 use App\Models\CustomField;
-use Filament\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Testing\TestsActions as TestAction;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -58,9 +57,10 @@ class CustomFieldResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(CustomFieldResource\Pages\CreateCustomField::class)
+            ->test(ListCustomFields::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -87,11 +87,10 @@ class CustomFieldResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(CustomFieldResource\Pages\EditCustomField::class, [
-                'record' => $customField->id,
-            ])
+            ->test(ListCustomFields::class)
+            ->mountAction(TestAction::make('edit')->table($customField))
             ->fillForm($payload)
-            ->call('save');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -111,10 +110,9 @@ class CustomFieldResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(CustomFieldResource\Pages\EditCustomField::class, [
-                'record' => $customField->id,
-            ])
-            ->callAction(DeleteAction::class);
+            ->test(ListCustomFields::class)
+            ->mountAction(TestAction::make('delete')->table($customField))
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -137,9 +135,10 @@ class CustomFieldResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(CustomFieldResource\Pages\CreateCustomField::class)
+            ->test(ListCustomFields::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component

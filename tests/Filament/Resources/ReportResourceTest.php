@@ -6,8 +6,7 @@ use App\Enums\ReportTypeEnum;
 use App\Filament\Resources\ReportResource;
 use App\Filament\Resources\ReportResource\Pages\ListReports;
 use App\Models\Report;
-use Filament\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Testing\TestsActions as TestAction;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -57,9 +56,10 @@ class ReportResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(ReportResource\Pages\CreateReport::class)
+            ->test(ListReports::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -88,11 +88,10 @@ class ReportResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(ReportResource\Pages\EditReport::class, [
-                'record' => $report->id,
-            ])
+            ->test(ListReports::class)
+            ->mountAction(TestAction::make('edit')->table($report))
             ->fillForm($payload)
-            ->call('save');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -114,10 +113,9 @@ class ReportResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(ReportResource\Pages\EditReport::class, [
-                'record' => $report->id,
-            ])
-            ->callAction(DeleteAction::class);
+            ->test(ListReports::class)
+            ->mountAction(TestAction::make('delete')->table($report))
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -141,9 +139,10 @@ class ReportResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(ReportResource\Pages\CreateReport::class)
+            ->test(ListReports::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component

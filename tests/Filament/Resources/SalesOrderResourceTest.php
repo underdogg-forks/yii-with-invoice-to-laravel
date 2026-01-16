@@ -7,8 +7,7 @@ use App\Filament\Resources\SalesOrderResource;
 use App\Filament\Resources\SalesOrderResource\Pages\ListSalesOrders;
 use App\Models\Client;
 use App\Models\SalesOrder;
-use Filament\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Testing\TestsActions as TestAction;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -76,9 +75,10 @@ class SalesOrderResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(SalesOrderResource\Pages\CreateSalesOrder::class)
+            ->test(ListSalesOrders::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -111,11 +111,10 @@ class SalesOrderResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(SalesOrderResource\Pages\EditSalesOrder::class, [
-                'record' => $salesOrder->id,
-            ])
+            ->test(ListSalesOrders::class)
+            ->mountAction(TestAction::make('edit')->table($salesOrder))
             ->fillForm($payload)
-            ->call('save');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -138,10 +137,9 @@ class SalesOrderResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(SalesOrderResource\Pages\EditSalesOrder::class, [
-                'record' => $salesOrder->id,
-            ])
-            ->callAction(DeleteAction::class);
+            ->test(ListSalesOrders::class)
+            ->mountAction(TestAction::make('delete')->table($salesOrder))
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -165,9 +163,10 @@ class SalesOrderResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(SalesOrderResource\Pages\CreateSalesOrder::class)
+            ->test(ListSalesOrders::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component

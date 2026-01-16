@@ -6,7 +6,7 @@ use App\Filament\Resources\PaymentPeppolResource;
 use App\Filament\Resources\PaymentPeppolResource\Pages\ListPaymentPeppols;
 use App\Models\Invoice;
 use App\Models\PaymentPeppol;
-use Filament\Actions\DeleteAction;
+use Filament\Tables\Testing\TestsActions as TestAction;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -58,9 +58,10 @@ class PaymentPeppolResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(PaymentPeppolResource\Pages\CreatePaymentPeppol::class)
+            ->test(ListPaymentPeppols::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -87,11 +88,10 @@ class PaymentPeppolResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(PaymentPeppolResource\Pages\EditPaymentPeppol::class, [
-                'record' => $paymentPeppol->id,
-            ])
+            ->test(ListPaymentPeppols::class)
+            ->mountAction(TestAction::make('edit')->table($paymentPeppol))
             ->fillForm($payload)
-            ->call('save');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -114,10 +114,9 @@ class PaymentPeppolResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(PaymentPeppolResource\Pages\EditPaymentPeppol::class, [
-                'record' => $paymentPeppol->id,
-            ])
-            ->callAction(DeleteAction::class);
+            ->test(ListPaymentPeppols::class)
+            ->mountAction(TestAction::make('delete')->table($paymentPeppol))
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -140,9 +139,10 @@ class PaymentPeppolResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(PaymentPeppolResource\Pages\CreatePaymentPeppol::class)
+            ->test(ListPaymentPeppols::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component

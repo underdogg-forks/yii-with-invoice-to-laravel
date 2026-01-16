@@ -7,7 +7,7 @@ use App\Filament\Resources\InvoiceResource;
 use App\Filament\Resources\InvoiceResource\Pages\ListInvoices;
 use App\Models\Client;
 use App\Models\Invoice;
-use Filament\Actions\DeleteAction;
+use Filament\Tables\Testing\TestsActions as TestAction;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -67,9 +67,10 @@ class InvoiceResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(InvoiceResource\Pages\CreateInvoice::class)
+            ->test(ListInvoices::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -103,11 +104,10 @@ class InvoiceResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(InvoiceResource\Pages\EditInvoice::class, [
-                'record' => $invoice->id,
-            ])
+            ->test(ListInvoices::class)
+            ->mountAction(TestAction::make('edit')->table($invoice))
             ->fillForm($payload)
-            ->call('save');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -130,10 +130,9 @@ class InvoiceResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(InvoiceResource\Pages\EditInvoice::class, [
-                'record' => $invoice->id,
-            ])
-            ->callAction(DeleteAction::class);
+            ->test(ListInvoices::class)
+            ->mountAction(TestAction::make('delete')->table($invoice))
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -156,9 +155,10 @@ class InvoiceResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(InvoiceResource\Pages\CreateInvoice::class)
+            ->test(ListInvoices::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component

@@ -6,8 +6,7 @@ use App\Enums\TemplateCategoryEnum;
 use App\Filament\Resources\TemplateResource;
 use App\Filament\Resources\TemplateResource\Pages\ListTemplates;
 use App\Models\Template;
-use Filament\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Testing\TestsActions as TestAction;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -61,9 +60,10 @@ class TemplateResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(TemplateResource\Pages\CreateTemplate::class)
+            ->test(ListTemplates::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -91,11 +91,10 @@ class TemplateResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(TemplateResource\Pages\EditTemplate::class, [
-                'record' => $template->id,
-            ])
+            ->test(ListTemplates::class)
+            ->mountAction(TestAction::make('edit')->table($template))
             ->fillForm($payload)
-            ->call('save');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -117,10 +116,9 @@ class TemplateResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(TemplateResource\Pages\EditTemplate::class, [
-                'record' => $template->id,
-            ])
-            ->callAction(DeleteAction::class);
+            ->test(ListTemplates::class)
+            ->mountAction(TestAction::make('delete')->table($template))
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -144,9 +142,10 @@ class TemplateResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(TemplateResource\Pages\CreateTemplate::class)
+            ->test(ListTemplates::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component

@@ -6,8 +6,7 @@ use App\Enums\NumberingEntityTypeEnum;
 use App\Filament\Resources\InvoiceNumberingResource;
 use App\Filament\Resources\InvoiceNumberingResource\Pages\ListInvoiceNumberings;
 use App\Models\InvoiceNumbering;
-use Filament\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Testing\TestsActions as TestAction;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -61,9 +60,10 @@ class InvoiceNumberingResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(InvoiceNumberingResource\Pages\CreateInvoiceNumbering::class)
+            ->test(ListInvoiceNumberings::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -90,11 +90,10 @@ class InvoiceNumberingResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(InvoiceNumberingResource\Pages\EditInvoiceNumbering::class, [
-                'record' => $numbering->id,
-            ])
+            ->test(ListInvoiceNumberings::class)
+            ->mountAction(TestAction::make('edit')->table($numbering))
             ->fillForm($payload)
-            ->call('save');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -114,10 +113,9 @@ class InvoiceNumberingResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(InvoiceNumberingResource\Pages\EditInvoiceNumbering::class, [
-                'record' => $numbering->id,
-            ])
-            ->callAction(DeleteAction::class);
+            ->test(ListInvoiceNumberings::class)
+            ->mountAction(TestAction::make('delete')->table($numbering))
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -140,9 +138,10 @@ class InvoiceNumberingResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(InvoiceNumberingResource\Pages\CreateInvoiceNumbering::class)
+            ->test(ListInvoiceNumberings::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component

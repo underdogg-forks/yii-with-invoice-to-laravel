@@ -5,7 +5,7 @@ namespace Tests\Filament\Resources;
 use App\Filament\Resources\ClientResource;
 use App\Filament\Resources\ClientResource\Pages\ListClients;
 use App\Models\Client;
-use Filament\Actions\DeleteAction;
+use Filament\Tables\Testing\TestsActions as TestAction;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -55,9 +55,10 @@ class ClientResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(ClientResource\Pages\CreateClient::class)
+            ->test(ListClients::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -86,11 +87,10 @@ class ClientResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(ClientResource\Pages\EditClient::class, [
-                'record' => $client->id,
-            ])
+            ->test(ListClients::class)
+            ->mountAction(TestAction::make('edit')->table($client))
             ->fillForm($payload)
-            ->call('save');
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -110,10 +110,9 @@ class ClientResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(ClientResource\Pages\EditClient::class, [
-                'record' => $client->id,
-            ])
-            ->callAction(DeleteAction::class);
+            ->test(ListClients::class)
+            ->mountAction(TestAction::make('delete')->table($client))
+            ->callMountedAction();
 
         /* Assert */
         $component
@@ -136,9 +135,10 @@ class ClientResourceTest extends AbstractCompanyPanelTestCase
 
         /* Act */
         $component = Livewire::actingAs($this->user)
-            ->test(ClientResource\Pages\CreateClient::class)
+            ->test(ListClients::class)
+            ->mountAction('create')
             ->fillForm($payload)
-            ->call('create');
+            ->callMountedAction();
 
         /* Assert */
         $component
