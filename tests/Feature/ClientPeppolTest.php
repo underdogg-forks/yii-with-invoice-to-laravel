@@ -5,57 +5,79 @@ namespace Tests\Feature;
 use App\Models\Client;
 use App\Models\ClientPeppol;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
+#[CoversClass(ClientPeppol::class)]
 class ClientPeppolTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_can_create_client_peppol(): void
+    #[Test]
+    public function it_creates_client_peppol(): void
     {
+        /* Arrange */
         $client = Client::factory()->create();
         
-        $clientPeppol = ClientPeppol::factory()->create([
+        $payload = [
             'client_id' => $client->id,
             'endpointid' => 'test@example.com',
             'buyer_reference' => 'REF-001',
-        ]);
+        ];
 
-        $this->assertDatabaseHas('client_peppol', [
-            'client_id' => $client->id,
-            'endpointid' => 'test@example.com',
-            'buyer_reference' => 'REF-001',
-        ]);
+        /* Act */
+        $clientPeppol = ClientPeppol::factory()->create($payload);
+
+        /* Assert */
+        $this->assertDatabaseHas('client_peppol', $payload);
+        $this->assertNotNull($clientPeppol->id);
     }
 
-    public function test_client_peppol_belongs_to_client(): void
+    #[Test]
+    public function it_has_client_relationship(): void
     {
+        /* Arrange */
         $clientPeppol = ClientPeppol::factory()->create();
 
-        $this->assertInstanceOf(Client::class, $clientPeppol->client);
+        /* Act */
+        $client = $clientPeppol->client;
+
+        /* Assert */
+        $this->assertInstanceOf(Client::class, $client);
     }
 
-    public function test_can_update_client_peppol(): void
+    #[Test]
+    public function it_updates_client_peppol(): void
     {
+        /* Arrange */
         $clientPeppol = ClientPeppol::factory()->create([
             'buyer_reference' => 'OLD-REF',
         ]);
 
-        $clientPeppol->update(['buyer_reference' => 'NEW-REF']);
+        $payload = ['buyer_reference' => 'NEW-REF'];
 
+        /* Act */
+        $clientPeppol->update($payload);
+
+        /* Assert */
         $this->assertDatabaseHas('client_peppol', [
             'id' => $clientPeppol->id,
             'buyer_reference' => 'NEW-REF',
         ]);
     }
 
-    public function test_can_delete_client_peppol(): void
+    #[Test]
+    public function it_deletes_client_peppol(): void
     {
+        /* Arrange */
         $clientPeppol = ClientPeppol::factory()->create();
         $id = $clientPeppol->id;
 
+        /* Act */
         $clientPeppol->delete();
 
+        /* Assert */
         $this->assertDatabaseMissing('client_peppol', [
             'id' => $id,
         ]);

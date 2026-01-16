@@ -3,35 +3,51 @@
 namespace Tests\Unit;
 
 use App\DTOs\ClientPeppolDTO;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(ClientPeppolDTO::class)]
 class ClientPeppolDTOTest extends TestCase
 {
-    public function test_can_create_client_peppol_dto(): void
+    #[Test]
+    public function it_creates_client_peppol_dto(): void
     {
+        /* Arrange */
+        $expectedId = 1;
+        $expectedClientId = 1;
+        $expectedEndpointId = 'test@example.com';
+        $expectedBuyerReference = 'REF-001';
+
+        /* Act */
         $dto = new ClientPeppolDTO(
-            id: 1,
-            client_id: 1,
-            endpointid: 'test@example.com',
-            buyer_reference: 'REF-001'
+            id: $expectedId,
+            client_id: $expectedClientId,
+            endpointid: $expectedEndpointId,
+            buyer_reference: $expectedBuyerReference
         );
 
-        $this->assertEquals(1, $dto->id);
-        $this->assertEquals(1, $dto->client_id);
-        $this->assertEquals('test@example.com', $dto->endpointid);
-        $this->assertEquals('REF-001', $dto->buyer_reference);
+        /* Assert */
+        $this->assertEquals($expectedId, $dto->id);
+        $this->assertEquals($expectedClientId, $dto->client_id);
+        $this->assertEquals($expectedEndpointId, $dto->endpointid);
+        $this->assertEquals($expectedBuyerReference, $dto->buyer_reference);
     }
 
-    public function test_can_convert_dto_to_array(): void
+    #[Test]
+    public function it_converts_dto_to_array(): void
     {
+        /* Arrange */
         $dto = new ClientPeppolDTO(
             id: 1,
             client_id: 1,
             endpointid: 'test@example.com'
         );
 
+        /* Act */
         $array = $dto->toArray();
 
+        /* Assert */
         $this->assertIsArray($array);
         $this->assertArrayHasKey('id', $array);
         $this->assertArrayHasKey('client_id', $array);

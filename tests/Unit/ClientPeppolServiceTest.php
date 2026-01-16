@@ -2,13 +2,16 @@
 
 namespace Tests\Unit;
 
-use App\Services\ClientPeppolService;
-use App\Repositories\ClientPeppolRepository;
 use App\DTOs\ClientPeppolDTO;
 use App\Models\ClientPeppol;
+use App\Repositories\ClientPeppolRepository;
+use App\Services\ClientPeppolService;
 use Mockery;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(ClientPeppolService::class)]
 class ClientPeppolServiceTest extends TestCase
 {
     protected function tearDown(): void
@@ -17,8 +20,10 @@ class ClientPeppolServiceTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_can_get_by_id(): void
+    #[Test]
+    public function it_gets_client_peppol_by_id(): void
     {
+        /* Arrange */
         $repository = Mockery::mock(ClientPeppolRepository::class);
         $repository->shouldReceive('find')
             ->once()
@@ -26,14 +31,19 @@ class ClientPeppolServiceTest extends TestCase
             ->andReturn(new ClientPeppol(['id' => 1]));
 
         $service = new ClientPeppolService($repository);
+
+        /* Act */
         $result = $service->getById(1);
 
+        /* Assert */
         $this->assertInstanceOf(ClientPeppol::class, $result);
         $this->assertEquals(1, $result->id);
     }
 
-    public function test_can_create(): void
+    #[Test]
+    public function it_creates_client_peppol(): void
     {
+        /* Arrange */
         $dto = new ClientPeppolDTO(
             client_id: 1,
             endpointid: 'test@example.com',
@@ -46,13 +56,18 @@ class ClientPeppolServiceTest extends TestCase
             ->andReturn(new ClientPeppol(['id' => 1]));
 
         $service = new ClientPeppolService($repository);
+
+        /* Act */
         $result = $service->create($dto);
 
+        /* Assert */
         $this->assertInstanceOf(ClientPeppol::class, $result);
     }
 
-    public function test_can_delete(): void
+    #[Test]
+    public function it_deletes_client_peppol(): void
     {
+        /* Arrange */
         $clientPeppol = new ClientPeppol(['id' => 1]);
         
         $repository = Mockery::mock(ClientPeppolRepository::class);
@@ -66,8 +81,11 @@ class ClientPeppolServiceTest extends TestCase
             ->andReturn(true);
 
         $service = new ClientPeppolService($repository);
+
+        /* Act */
         $result = $service->delete(1);
 
+        /* Assert */
         $this->assertTrue($result);
     }
 }
