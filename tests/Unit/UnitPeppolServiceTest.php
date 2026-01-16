@@ -73,6 +73,12 @@ class UnitPeppolServiceTest extends TestCase
         $repository = Mockery::mock(UnitPeppolRepository::class);
         $repository->shouldReceive('create')
             ->once()
+            ->with(Mockery::on(function ($arg) use ($dto) {
+                return is_array($arg) 
+                    && $arg['code'] === $dto->code
+                    && $arg['name'] === $dto->name
+                    && $arg['description'] === $dto->description;
+            }))
             ->andReturn(new UnitPeppol(['id' => 1]));
 
         $service = new UnitPeppolService($repository);

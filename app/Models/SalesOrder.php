@@ -77,9 +77,12 @@ class SalesOrder extends Model
         return $this->belongsTo(Quote::class);
     }
 
+    /**
+     * Get the user who created this sales order
+     */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     #endregion

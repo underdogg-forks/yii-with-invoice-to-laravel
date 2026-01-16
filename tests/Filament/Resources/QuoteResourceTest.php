@@ -24,7 +24,7 @@ class QuoteResourceTest extends AbstractCompanyPanelTestCase
     {
         /* Arrange */
         $client = Client::factory()->create([
-            'client_name' => '::client_name::',
+            'name' => '::client_name::',
         ]);
 
         $payload = [

@@ -56,7 +56,9 @@ class PaymentPeppolServiceTest extends TestCase
         $result = $service->getByInvoiceId(1);
 
         /* Assert */
-        $this->assertNotEmpty($result);
+        $this->assertInstanceOf(\Illuminate\Support\Collection::class, $result);
+        $this->assertCount(1, $result);
+        $this->assertEquals(1, $result->first()->inv_id);
     }
 
     #[Test]

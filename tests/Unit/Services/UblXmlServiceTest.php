@@ -5,6 +5,7 @@ namespace Tests\Unit\Services;
 use App\Models\Invoice;
 use App\Services\UblXmlService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -74,6 +75,7 @@ class UblXmlServiceTest extends TestCase
     public function it_saves_xml_to_storage(): void
     {
         /* Arrange */
+        Storage::fake('local');
         $invoice = Invoice::factory()->create();
 
         /* Act */
@@ -81,7 +83,7 @@ class UblXmlServiceTest extends TestCase
 
         /* Assert */
         $this->assertNotEmpty($path);
-        $this->assertFileExists(storage_path('app/' . $path));
+        Storage::disk('local')->assertExists($path);
     }
 
     #[Test]
@@ -103,7 +105,7 @@ class UblXmlServiceTest extends TestCase
     public function it_handles_missing_invoice(): void
     {
         /* Arrange */
-        $this->expectException(\Exception::class);
+        $this->expectException(\TypeError::class);
 
         /* Act */
         $this->ublXmlService->generateInvoiceXml(null);
