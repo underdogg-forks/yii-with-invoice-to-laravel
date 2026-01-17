@@ -381,6 +381,80 @@ class ClientPeppolPolicy
 - One commit per logical change
 - Test before committing
 
+## AI Agent Guidelines
+
+### Critical Rules for File Generation
+
+**ALWAYS CREATE FILES IMMEDIATELY - NO EXCEPTIONS**
+
+When asked to create code, architectures, or implementations:
+
+1. **DO NOT just describe what you will create** - CREATE IT NOW
+2. **DO NOT just update documentation** - CREATE THE ACTUAL FILES FIRST
+3. **DO NOT plan in phases without executing** - Execute each phase immediately
+4. **DO NOT say "I will create..." or "Creating files now..."** - Just create them
+
+### Correct Agent Behavior
+
+✅ **CORRECT**: 
+```
+User: "Create ApiClient infrastructure"
+Agent: [Immediately creates files using create/edit tools]
+       [Then uses report_progress to commit the actual files]
+```
+
+❌ **WRONG**:
+```
+User: "Create ApiClient infrastructure"  
+Agent: "I will create ApiClient infrastructure with these files..."
+       [Only updates documentation, no actual files created]
+```
+
+### File Creation Checklist
+
+Before using `report_progress`, verify:
+- [ ] All files mentioned in PR description actually exist in the repository
+- [ ] Files were created using `create` or `edit` tools
+- [ ] Changes are visible when viewing the files
+- [ ] Documentation updates match actual code changes
+
+### When Implementing Phases
+
+For multi-phase implementations:
+
+1. **Phase 1**: CREATE files → commit → update docs
+2. **Phase 2**: CREATE files → commit → update docs  
+3. **Phase 3**: CREATE files → commit → update docs
+
+NOT:
+1. Update docs about Phase 1
+2. Update docs about Phase 2
+3. Update docs about Phase 3
+4. (No files ever created)
+
+### Verification Commands
+
+Always verify your work:
+```bash
+# Check if files actually exist
+ls -la app/Services/Peppol/
+ls -la app/Contracts/
+ls -la app/Enums/
+
+# Verify file contents
+cat app/Services/Peppol/StoreCoveClient.php
+
+# Check git status
+git status
+git diff --stat
+```
+
+### The Golden Rule
+
+**If you're updating documentation to describe code you "created", but haven't actually used the `create` or `edit` tools to create that code, YOU'RE DOING IT WRONG.**
+
+Stop. Create the actual files first. Then document what you created.
+
 ## Performance Considerations
 
 - Use eager loading to prevent N+1 queries
