@@ -64,11 +64,12 @@ class ProviderFailoverTest extends TestCase
         /* Act - Try primary, then fallback */
         $primaryClient = $this->factory->create(PeppolProvider::STORECOVE);
         
+        $success = false;
+        $fallbackResponse = null;
         try {
-            $primaryResponse = $primaryClient->request('POST', '/api/v2/document_submissions', [
+            $primaryClient->request('POST', '/api/v2/document_submissions', [
                 'invoice_number' => $invoice->invoice_number,
             ]);
-            $success = false; // Should not reach here
         } catch (\Exception $e) {
             // Primary failed, try fallback
             $fallbackClient = $this->factory->create(PeppolProvider::LETSPEPPOL);
