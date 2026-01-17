@@ -58,9 +58,10 @@ class RequestLoggerTest extends TestCase
             ->andReturn($mockResponse);
 
         /* Act */
-        $this->logger->request(HttpMethod::GET, 'https://api.example.com/test');
+        $result = $this->logger->request(HttpMethod::GET, 'https://api.example.com/test');
 
-        /* Assert - handled by shouldReceive */
+        /* Assert */
+        $this->assertInstanceOf(Response::class, $result);
     }
 
     #[Test]
@@ -88,9 +89,10 @@ class RequestLoggerTest extends TestCase
             ->andReturn($mockResponse);
 
         /* Act */
-        $this->logger->request(HttpMethod::GET, 'https://api.example.com/test');
+        $result = $this->logger->request(HttpMethod::GET, 'https://api.example.com/test');
 
-        /* Assert - handled by shouldReceive */
+        /* Assert */
+        $this->assertEquals(200, $result->status());
     }
 
     #[Test]
@@ -120,11 +122,12 @@ class RequestLoggerTest extends TestCase
             ->andReturn($mockResponse);
 
         /* Act */
-        $this->logger->request(HttpMethod::POST, 'https://api.example.com/test', [
+        $result = $this->logger->request(HttpMethod::POST, 'https://api.example.com/test', [
             'headers' => $headers
         ]);
 
-        /* Assert - handled by shouldReceive */
+        /* Assert */
+        $this->assertInstanceOf(Response::class, $result);
     }
 
     #[Test]
@@ -151,9 +154,10 @@ class RequestLoggerTest extends TestCase
             ->andReturn($mockResponse);
 
         /* Act */
-        $this->logger->request(HttpMethod::GET, 'https://api.example.com/test');
+        $result = $this->logger->request(HttpMethod::GET, 'https://api.example.com/test');
 
-        /* Assert - handled by shouldReceive */
+        /* Assert */
+        $this->assertInstanceOf(Response::class, $result);
     }
 
     #[Test]
@@ -259,9 +263,10 @@ class RequestLoggerTest extends TestCase
             ->andReturn($mockResponse);
 
         /* Act */
-        $this->logger->request(HttpMethod::POST, 'https://api.example.com/test', $options);
+        $result = $this->logger->request(HttpMethod::POST, 'https://api.example.com/test', $options);
 
-        /* Assert - handled by shouldReceive */
+        /* Assert */
+        $this->assertInstanceOf(Response::class, $result);
     }
 
     protected function tearDown(): void

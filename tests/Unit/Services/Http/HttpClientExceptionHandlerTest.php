@@ -180,9 +180,10 @@ class HttpClientExceptionHandlerTest extends TestCase
             ->andReturn($mockResponse);
 
         /* Act */
-        $this->handler->request(HttpMethod::POST, 'https://api.example.com/test', $options);
+        $result = $this->handler->request(HttpMethod::POST, 'https://api.example.com/test', $options);
 
-        /* Assert - handled by shouldReceive */
+        /* Assert */
+        $this->assertInstanceOf(Response::class, $result);
     }
 
     #[Test]

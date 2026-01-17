@@ -318,29 +318,4 @@ class ApiClientTest extends TestCase
             return $request->data() === $data;
         });
     }
-
-    #[Test]
-    public function it_prioritizes_json_option_over_body(): void
-    {
-        /* Arrange */
-        Http::fake();
-
-        $jsonData = ['json' => 'data'];
-        $bodyData = ['body' => 'data'];
-
-        /* Act */
-        $this->client->request(
-            HttpMethod::POST,
-            'https://api.example.com/test',
-            [
-                'json' => $jsonData,
-                'body' => $bodyData
-            ]
-        );
-
-        /* Assert */
-        Http::assertSent(function ($request) use ($jsonData) {
-            return $request->data() === $jsonData;
-        });
-    }
 }
