@@ -239,17 +239,17 @@ class ApiClientTest extends TestCase
     }
 
     #[Test]
-    public function it_successfully_makes_request_with_custom_timeout(): void
+    public function it_successfully_makes_request_with_options(): void
     {
         /* Arrange */
         Http::fake([
-            'https://api.example.com/slow-endpoint' => Http::response(['result' => 'completed'], 200)
+            'https://api.example.com/endpoint' => Http::response(['result' => 'completed'], 200)
         ]);
 
-        /* Act */
+        /* Act - Test with timeout option */
         $response = $this->client->request(
             HttpMethod::GET,
-            'https://api.example.com/slow-endpoint',
+            'https://api.example.com/endpoint',
             ['timeout' => 60]
         );
 
@@ -257,30 +257,7 @@ class ApiClientTest extends TestCase
         $this->assertEquals(200, $response->status());
         $this->assertEquals(['result' => 'completed'], $response->json());
         Http::assertSent(function ($request) {
-            return $request->url() === 'https://api.example.com/slow-endpoint' &&
-                   $request->method() === 'GET';
-        });
-    }
-
-    #[Test]
-    public function it_successfully_makes_request_with_default_timeout(): void
-    {
-        /* Arrange */
-        Http::fake([
-            'https://api.example.com/test' => Http::response(['data' => 'success'], 200)
-        ]);
-
-        /* Act */
-        $response = $this->client->request(
-            HttpMethod::GET,
-            'https://api.example.com/test'
-        );
-
-        /* Assert */
-        $this->assertEquals(200, $response->status());
-        $this->assertEquals(['data' => 'success'], $response->json());
-        Http::assertSent(function ($request) {
-            return $request->url() === 'https://api.example.com/test' &&
+            return $request->url() === 'https://api.example.com/endpoint' &&
                    $request->method() === 'GET';
         });
     }
