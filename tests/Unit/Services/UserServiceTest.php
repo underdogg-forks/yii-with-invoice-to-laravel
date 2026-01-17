@@ -7,6 +7,7 @@ use App\Repositories\UserRepository;
 use App\DTOs\UserDTO;
 use App\Models\User;
 use PragmaRX\Google2FA\Google2FA;
+use PHPUnit\Framework\Attributes\Test;
 use Mockery;
 use Tests\TestCase;
 
@@ -18,9 +19,10 @@ class UserServiceTest extends TestCase
         parent::tearDown();
     }
 
-    public function it_creates_user_with_hashed_password(): void
+    #[Test]
+    public function it_creates_user_with_securely_hashed_password(): void
     {
-        // Arrange
+        /* Arrange */
         $repository = Mockery::mock(UserRepository::class);
         $google2fa = Mockery::mock(Google2FA::class);
         
@@ -33,6 +35,7 @@ class UserServiceTest extends TestCase
         $repository->shouldReceive('create')
             ->once()
             ->with(Mockery::on(function ($data) {
+                // Verify password is hashed (not plain text)
                 return isset($data['password']) 
                     && $data['password'] !== 'plain-password'
                     && strlen($data['password']) > 30; // Hashed password is longer
@@ -41,63 +44,72 @@ class UserServiceTest extends TestCase
 
         $service = new UserService($repository, $google2fa);
 
-        // Act
+        /* Act */
         $result = $service->create($dto);
 
-        // Assert
+        /* Assert */
         $this->assertInstanceOf(User::class, $result);
+        $this->assertEquals(1, $result->id);
     }
 
-    public function it_gets_user_by_id(): void
+    #[Test]
+    public function it_retrieves_user_by_id(): void
     {
-        // Arrange
+        /* Arrange */
+        $userId = 1;
         $repository = Mockery::mock(UserRepository::class);
         $google2fa = Mockery::mock(Google2FA::class);
         
         $repository->shouldReceive('find')
             ->once()
-            ->with(1)
-            ->andReturn(new User(['id' => 1]));
+            ->with($userId)
+            ->andReturn(new User(['id' => $userId]));
 
         $service = new UserService($repository, $google2fa);
 
-        // Act
-        $result = $service->getById(1);
+        /* Act */
+        $result = $service->getById($userId);
 
-        // Assert
+        /* Assert */
         $this->assertInstanceOf(User::class, $result);
+        $this->assertEquals($userId, $result->id);
     }
 
-    public function it_gets_user_by_email(): void
+    #[Test]
+    public function it_retrieves_user_by_email_address(): void
     {
-        // Arrange
+        /* Arrange */
+        $email = 'test@example.com';
         $repository = Mockery::mock(UserRepository::class);
         $google2fa = Mockery::mock(Google2FA::class);
         
         $repository->shouldReceive('findByEmail')
             ->once()
-            ->with('test@example.com')
-            ->andReturn(new User(['email' => 'test@example.com']));
+            ->with($email)
+            ->andReturn(new User(['email' => $email]));
 
         $service = new UserService($repository, $google2fa);
 
-        // Act
-        $result = $service->getByEmail('test@example.com');
+        /* Act */
+        $result = $service->getByEmail($email);
 
-        // Assert
+        /* Assert */
         $this->assertInstanceOf(User::class, $result);
+        $this->assertEquals($email, $result->email);
     }
 
-    public function it_deletes_user(): void
+    #[Test]
+    public function it_deletes_user_by_id(): void
     {
-        // Arrange
-        $user = new User(['id' => 1]);
+        /* Arrange */
+        $userId = 1;
+        $user = new User(['id' => $userId]);
         $repository = Mockery::mock(UserRepository::class);
         $google2fa = Mockery::mock(Google2FA::class);
         
         $repository->shouldReceive('find')
             ->once()
-            ->with(1)
+            ->with($userId)
             ->andReturn($user);
         
         $repository->shouldReceive('delete')
@@ -107,10 +119,10 @@ class UserServiceTest extends TestCase
 
         $service = new UserService($repository, $google2fa);
 
-        // Act
-        $result = $service->delete(1);
+        /* Act */
+        $result = $service->delete($userId);
 
-        // Assert
+        /* Assert */
         $this->assertTrue($result);
     }
 }

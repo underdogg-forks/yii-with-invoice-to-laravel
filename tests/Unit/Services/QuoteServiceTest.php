@@ -9,11 +9,13 @@ use App\DTOs\QuoteDTO;
 use App\Models\Quote;
 use App\Models\QuoteStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\MocksRepositories;
 use Mockery;
 
 class QuoteServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, MocksRepositories;
 
     private QuoteService $service;
     private $mockRepository;
@@ -25,9 +27,10 @@ class QuoteServiceTest extends TestCase
         $this->service = new QuoteService($this->mockRepository);
     }
 
-    public function it_creates_quote_with_dto(): void
+    #[Test]
+    public function it_creates_quote_from_dto(): void
     {
-        // Arrange
+        /* Arrange */
         $dto = new QuoteDTO(
             client_id: 1,
             quote_number: 'Q-2026-001',
@@ -40,38 +43,38 @@ class QuoteServiceTest extends TestCase
         );
 
         $expectedQuote = new Quote($dto->toArray());
-        $this->mockRepository->shouldReceive('create')
-            ->once()
-            ->andReturn($expectedQuote);
+        $this->mockRepositoryCreate($this->mockRepository, $expectedQuote);
 
-        // Act
+        /* Act */
         $result = $this->service->create($dto);
 
-        // Assert
+        /* Assert */
         $this->assertInstanceOf(Quote::class, $result);
+        $this->assertEquals('Q-2026-001', $result->quote_number);
+        $this->assertEquals(1210.00, $result->total);
     }
 
-    public function it_gets_quote_by_id(): void
+    #[Test]
+    public function it_retrieves_quote_by_id(): void
     {
-        // Arrange
+        /* Arrange */
         $quoteId = 1;
         $expectedQuote = new Quote(['id' => $quoteId]);
-        $this->mockRepository->shouldReceive('findById')
-            ->with($quoteId)
-            ->once()
-            ->andReturn($expectedQuote);
+        
+        $this->mockRepositoryFindById($this->mockRepository, $quoteId, $expectedQuote);
 
-        // Act
+        /* Act */
         $result = $this->service->getById($quoteId);
 
-        // Assert
+        /* Assert */
         $this->assertInstanceOf(Quote::class, $result);
         $this->assertEquals($quoteId, $result->id);
     }
 
-    public function it_updates_quote_with_dto(): void
+    #[Test]
+    public function it_updates_existing_quote(): void
     {
-        // Arrange
+        /* Arrange */
         $dto = new QuoteDTO(
             id: 1,
             client_id: 1,
@@ -85,36 +88,33 @@ class QuoteServiceTest extends TestCase
         );
 
         $expectedQuote = new Quote($dto->toArray());
-        $this->mockRepository->shouldReceive('update')
-            ->once()
-            ->andReturn($expectedQuote);
+        $this->mockRepositoryUpdate($this->mockRepository, $expectedQuote);
 
-        // Act
+        /* Act */
         $result = $this->service->update($dto);
 
-        // Assert
+        /* Assert */
         $this->assertInstanceOf(Quote::class, $result);
     }
 
-    public function it_deletes_quote(): void
+    #[Test]
+    public function it_deletes_quote_by_id(): void
     {
-        // Arrange
+        /* Arrange */
         $quoteId = 1;
-        $this->mockRepository->shouldReceive('delete')
-            ->with($quoteId)
-            ->once()
-            ->andReturn(true);
+        $this->mockRepositoryDelete($this->mockRepository, $quoteId, true);
 
-        // Act
+        /* Act */
         $result = $this->service->delete($quoteId);
 
-        // Assert
+        /* Assert */
         $this->assertTrue($result);
     }
 
-    public function it_gets_all_quotes_with_filters(): void
+    #[Test]
+    public function it_retrieves_quotes_with_multiple_filters(): void
     {
-        // Arrange
+        /* Arrange */
         $status = 'draft';
         $clientId = 1;
         $search = 'Q-2026';
@@ -124,32 +124,27 @@ class QuoteServiceTest extends TestCase
             ->once()
             ->andReturn(collect([]));
 
-        // Act
+        /* Act */
         $result = $this->service->getAll($status, $clientId, $search);
 
-        // Assert
+        /* Assert */
         $this->assertInstanceOf(\Illuminate\Support\Collection::class, $result);
     }
 
-    public function it_sends_quote(): void
+    #[Test]
+    public function it_sends_quote_and_updates_status(): void
     {
-        // Arrange
+        /* Arrange */
         QuoteStatus::factory()->create(['code' => 'sent']);
         $quote = Quote::factory()->create();
 
-        $this->mockRepository->shouldReceive('findById')
-            ->with($quote->id)
-            ->once()
-            ->andReturn($quote);
+        $this->mockRepositoryFindById($this->mockRepository, $quote->id, $quote);
+        $this->mockRepositoryUpdate($this->mockRepository, $quote);
 
-        $this->mockRepository->shouldReceive('update')
-            ->once()
-            ->andReturn($quote);
-
-        // Act
+        /* Act */
         $result = $this->service->send($quote->id);
 
-        // Assert
+        /* Assert */
         $this->assertInstanceOf(Quote::class, $result);
     }
 

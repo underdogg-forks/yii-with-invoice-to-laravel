@@ -7,10 +7,14 @@ use App\Models\Client;
 use App\Repositories\ClientRepository;
 use App\Services\ClientService;
 use Mockery;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\MocksRepositories;
 use Tests\TestCase;
 
 class ClientServiceTest extends TestCase
 {
+    use MocksRepositories;
+
     private ClientRepository $repository;
     private ClientService $service;
     
@@ -21,9 +25,10 @@ class ClientServiceTest extends TestCase
         $this->service = new ClientService($this->repository);
     }
     
-    public function it_creates_client(): void
+    #[Test]
+    public function it_creates_client_from_dto(): void
     {
-        // Arrange
+        /* Arrange */
         $dto = new ClientDTO(
             client_name: 'John',
             client_surname: 'Doe',
@@ -33,41 +38,38 @@ class ClientServiceTest extends TestCase
         $client = new Client();
         $client->client_id = 1;
         
-        $this->repository
-            ->shouldReceive('create')
-            ->once()
-            ->andReturn($client);
+        $this->mockRepositoryCreate($this->repository, $client);
         
-        // Act
+        /* Act */
         $result = $this->service->create($dto);
         
-        // Assert
+        /* Assert */
         $this->assertInstanceOf(Client::class, $result);
         $this->assertEquals(1, $result->client_id);
     }
     
-    public function it_gets_client_by_id(): void
+    #[Test]
+    public function it_retrieves_client_by_id(): void
     {
-        // Arrange
+        /* Arrange */
+        $clientId = 1;
         $client = new Client();
-        $client->client_id = 1;
+        $client->client_id = $clientId;
         
-        $this->repository
-            ->shouldReceive('findById')
-            ->with(1)
-            ->once()
-            ->andReturn($client);
+        $this->mockRepositoryFindById($this->repository, $clientId, $client);
         
-        // Act
-        $result = $this->service->getById(1);
+        /* Act */
+        $result = $this->service->getById($clientId);
         
-        // Assert
+        /* Assert */
         $this->assertInstanceOf(Client::class, $result);
+        $this->assertEquals($clientId, $result->client_id);
     }
     
-    public function it_updates_client(): void
+    #[Test]
+    public function it_updates_existing_client(): void
     {
-        // Arrange
+        /* Arrange */
         $dto = new ClientDTO(
             client_id: 1,
             client_name: 'Jane',
@@ -76,134 +78,127 @@ class ClientServiceTest extends TestCase
         
         $client = new Client();
         $client->client_id = 1;
+        $client->client_name = 'Jane';
         
-        $this->repository
-            ->shouldReceive('update')
-            ->once()
-            ->andReturn($client);
+        $this->mockRepositoryUpdate($this->repository, $client);
         
-        // Act
+        /* Act */
         $result = $this->service->update($dto);
         
-        // Assert
+        /* Assert */
         $this->assertInstanceOf(Client::class, $result);
+        $this->assertEquals('Jane', $result->client_name);
     }
     
-    public function it_deletes_client(): void
+    #[Test]
+    public function it_deletes_client_by_id(): void
     {
-        // Arrange
-        $this->repository
-            ->shouldReceive('delete')
-            ->with(1)
-            ->once()
-            ->andReturn(true);
+        /* Arrange */
+        $clientId = 1;
+        $this->mockRepositoryDelete($this->repository, $clientId, true);
         
-        // Act
-        $result = $this->service->delete(1);
+        /* Act */
+        $result = $this->service->delete($clientId);
         
-        // Assert
+        /* Assert */
         $this->assertTrue($result);
     }
     
-    public function it_searches_clients(): void
+    #[Test]
+    public function it_searches_clients_by_query_string(): void
     {
-        // Arrange
+        /* Arrange */
+        $query = 'john';
         $clients = collect([new Client(), new Client()]);
         
-        $this->repository
-            ->shouldReceive('search')
-            ->with('john', [])
-            ->once()
-            ->andReturn($clients);
+        $this->mockRepositorySearch($this->repository, $query, $clients);
         
-        // Act
-        $result = $this->service->search('john');
+        /* Act */
+        $result = $this->service->search($query);
         
-        // Assert
+        /* Assert */
         $this->assertCount(2, $result);
     }
     
-    public function it_gets_active_clients(): void
+    #[Test]
+    public function it_retrieves_only_active_clients(): void
     {
-        // Arrange
-        $clients = collect([new Client(), new Client()]);
+        /* Arrange */
+        $activeClient1 = new Client();
+        $activeClient1->client_active = true;
+        $activeClient2 = new Client();
+        $activeClient2->client_active = true;
         
-        $this->repository
-            ->shouldReceive('getActive')
-            ->once()
-            ->andReturn($clients);
+        $clients = collect([$activeClient1, $activeClient2]);
         
-        // Act
+        $this->mockRepositoryGetActive($this->repository, $clients);
+        
+        /* Act */
         $result = $this->service->getActive();
         
-        // Assert
+        /* Assert */
         $this->assertCount(2, $result);
     }
     
-    public function it_gets_clients_by_group(): void
+    #[Test]
+    public function it_retrieves_clients_by_group(): void
     {
-        // Arrange
-        $clients = collect([new Client()]);
+        /* Arrange */
+        $group = 'corporate';
+        $client = new Client();
+        $clients = collect([$client]);
         
-        $this->repository
-            ->shouldReceive('getByGroup')
-            ->with('corporate')
-            ->once()
-            ->andReturn($clients);
+        $this->mockRepositoryGetByGroup($this->repository, $group, $clients);
         
-        // Act
-        $result = $this->service->getByGroup('corporate');
+        /* Act */
+        $result = $this->service->getByGroup($group);
         
-        // Assert
+        /* Assert */
         $this->assertCount(1, $result);
     }
     
-    public function it_restores_deleted_client(): void
+    #[Test]
+    public function it_restores_soft_deleted_client(): void
     {
-        // Arrange
-        $this->repository
-            ->shouldReceive('restore')
-            ->with(1)
-            ->once()
-            ->andReturn(true);
+        /* Arrange */
+        $clientId = 1;
+        $this->mockRepositoryRestore($this->repository, $clientId, true);
         
-        // Act
-        $result = $this->service->restore(1);
+        /* Act */
+        $result = $this->service->restore($clientId);
         
-        // Assert
+        /* Assert */
         $this->assertTrue($result);
     }
     
-    public function it_force_deletes_client(): void
+    #[Test]
+    public function it_permanently_deletes_client(): void
     {
-        // Arrange
-        $this->repository
-            ->shouldReceive('forceDelete')
-            ->with(1)
-            ->once()
-            ->andReturn(true);
+        /* Arrange */
+        $clientId = 1;
+        $this->mockRepositoryForceDelete($this->repository, $clientId, true);
         
-        // Act
-        $result = $this->service->forceDelete(1);
+        /* Act */
+        $result = $this->service->forceDelete($clientId);
         
-        // Assert
+        /* Assert */
         $this->assertTrue($result);
     }
     
-    public function it_gets_all_clients_with_trashed(): void
+    #[Test]
+    public function it_retrieves_all_clients_including_trashed(): void
     {
-        // Arrange
-        $clients = collect([new Client(), new Client()]);
+        /* Arrange */
+        $client1 = new Client();
+        $client2 = new Client();
+        $clients = collect([$client1, $client2]);
         
-        $this->repository
-            ->shouldReceive('getAllWithTrashed')
-            ->once()
-            ->andReturn($clients);
+        $this->mockRepositoryGetAllWithTrashed($this->repository, $clients);
         
-        // Act
+        /* Act */
         $result = $this->service->getAllWithTrashed();
         
-        // Assert
+        /* Assert */
         $this->assertCount(2, $result);
     }
 }
