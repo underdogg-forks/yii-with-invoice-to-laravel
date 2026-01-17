@@ -8,13 +8,10 @@ use App\Repositories\ClientRepository;
 use App\Services\ClientService;
 use Mockery;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\Support\MocksRepositories;
 use Tests\TestCase;
 
 class ClientServiceTest extends TestCase
 {
-    use MocksRepositories;
-
     private ClientRepository $repository;
     private ClientService $service;
     
@@ -38,7 +35,9 @@ class ClientServiceTest extends TestCase
         $client = new Client();
         $client->client_id = 1;
         
-        $this->mockRepositoryCreate($this->repository, $client);
+        $this->repository->shouldReceive('create')
+            ->once()
+            ->andReturn($client);
         
         /* Act */
         $result = $this->service->create($dto);
@@ -56,10 +55,13 @@ class ClientServiceTest extends TestCase
         $client = new Client();
         $client->client_id = $clientId;
         
-        $this->mockRepositoryFindById($this->repository, $clientId, $client);
+        $this->repository->shouldReceive('findById')
+            ->with($clientId)
+            ->once()
+            ->andReturn($client);
         
         /* Act */
-        $result = $this->service->getById($clientId);
+        $result = $this->service->findById($clientId);
         
         /* Assert */
         $this->assertInstanceOf(Client::class, $result);
@@ -70,8 +72,8 @@ class ClientServiceTest extends TestCase
     public function it_updates_existing_client(): void
     {
         /* Arrange */
+        $clientId = 1;
         $dto = new ClientDTO(
-            client_id: 1,
             client_name: 'Jane',
             client_email: 'jane@example.com'
         );
@@ -80,10 +82,17 @@ class ClientServiceTest extends TestCase
         $client->client_id = 1;
         $client->client_name = 'Jane';
         
-        $this->mockRepositoryUpdate($this->repository, $client);
+        $this->repository->shouldReceive('findById')
+            ->with($clientId)
+            ->once()
+            ->andReturn($client);
+        
+        $this->repository->shouldReceive('update')
+            ->once()
+            ->andReturn($client);
         
         /* Act */
-        $result = $this->service->update($dto);
+        $result = $this->service->update($clientId, $dto);
         
         /* Assert */
         $this->assertInstanceOf(Client::class, $result);
@@ -95,7 +104,18 @@ class ClientServiceTest extends TestCase
     {
         /* Arrange */
         $clientId = 1;
-        $this->mockRepositoryDelete($this->repository, $clientId, true);
+        $client = new Client();
+        $client->client_id = $clientId;
+        
+        $this->repository->shouldReceive('findById')
+            ->with($clientId)
+            ->once()
+            ->andReturn($client);
+        
+        $this->repository->shouldReceive('delete')
+            ->with($client)
+            ->once()
+            ->andReturn(true);
         
         /* Act */
         $result = $this->service->delete($clientId);
@@ -109,9 +129,12 @@ class ClientServiceTest extends TestCase
     {
         /* Arrange */
         $query = 'john';
-        $clients = collect([new Client(), new Client()]);
+        $clients = new \Illuminate\Database\Eloquent\Collection([new Client(), new Client()]);
         
-        $this->mockRepositorySearch($this->repository, $query, $clients);
+        $this->repository->shouldReceive('search')
+            ->with($query)
+            ->once()
+            ->andReturn($clients);
         
         /* Act */
         $result = $this->service->search($query);
@@ -129,9 +152,11 @@ class ClientServiceTest extends TestCase
         $activeClient2 = new Client();
         $activeClient2->client_active = true;
         
-        $clients = collect([$activeClient1, $activeClient2]);
+        $clients = new \Illuminate\Database\Eloquent\Collection([$activeClient1, $activeClient2]);
         
-        $this->mockRepositoryGetActive($this->repository, $clients);
+        $this->repository->shouldReceive('findActive')
+            ->once()
+            ->andReturn($clients);
         
         /* Act */
         $result = $this->service->getActive();
@@ -146,9 +171,12 @@ class ClientServiceTest extends TestCase
         /* Arrange */
         $group = 'corporate';
         $client = new Client();
-        $clients = collect([$client]);
+        $clients = new \Illuminate\Database\Eloquent\Collection([$client]);
         
-        $this->mockRepositoryGetByGroup($this->repository, $group, $clients);
+        $this->repository->shouldReceive('findByGroup')
+            ->with($group)
+            ->once()
+            ->andReturn($clients);
         
         /* Act */
         $result = $this->service->getByGroup($group);
@@ -162,13 +190,19 @@ class ClientServiceTest extends TestCase
     {
         /* Arrange */
         $clientId = 1;
-        $this->mockRepositoryRestore($this->repository, $clientId, true);
+        $client = new Client();
+        $client->client_id = $clientId;
+        
+        $this->repository->shouldReceive('restore')
+            ->with($clientId)
+            ->once()
+            ->andReturn($client);
         
         /* Act */
         $result = $this->service->restore($clientId);
         
         /* Assert */
-        $this->assertTrue($result);
+        $this->assertInstanceOf(Client::class, $result);
     }
     
     #[Test]
@@ -176,7 +210,18 @@ class ClientServiceTest extends TestCase
     {
         /* Arrange */
         $clientId = 1;
-        $this->mockRepositoryForceDelete($this->repository, $clientId, true);
+        $client = new Client();
+        $client->client_id = $clientId;
+        
+        $this->repository->shouldReceive('findById')
+            ->with($clientId, true)
+            ->once()
+            ->andReturn($client);
+        
+        $this->repository->shouldReceive('forceDelete')
+            ->with($client)
+            ->once()
+            ->andReturn(true);
         
         /* Act */
         $result = $this->service->forceDelete($clientId);
@@ -186,19 +231,27 @@ class ClientServiceTest extends TestCase
     }
     
     #[Test]
-    public function it_retrieves_all_clients_including_trashed(): void
+    public function it_retrieves_all_clients(): void
     {
         /* Arrange */
         $client1 = new Client();
         $client2 = new Client();
-        $clients = collect([$client1, $client2]);
+        $clients = new \Illuminate\Database\Eloquent\Collection([$client1, $client2]);
         
-        $this->mockRepositoryGetAllWithTrashed($this->repository, $clients);
+        $this->repository->shouldReceive('all')
+            ->once()
+            ->andReturn($clients);
         
         /* Act */
-        $result = $this->service->getAllWithTrashed();
+        $result = $this->service->getAll();
         
         /* Assert */
         $this->assertCount(2, $result);
+    }
+    
+    protected function tearDown(): void
+    {
+        Mockery::close();
+        parent::tearDown();
     }
 }
