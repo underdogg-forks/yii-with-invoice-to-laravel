@@ -45,9 +45,9 @@ class Client extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function peppol(): HasOne
+    public function customFields(): HasMany
     {
-        return $this->hasOne(ClientPeppol::class, 'client_id');
+        return $this->hasMany(ClientCustom::class, 'client_id');
     }
 
     public function invoices(): HasMany
@@ -55,9 +55,9 @@ class Client extends Model
         return $this->hasMany(Invoice::class, 'client_id');
     }
 
-    public function customFields(): HasMany
+    public function peppol(): HasOne
     {
-        return $this->hasMany(ClientCustom::class, 'client_id');
+        return $this->hasOne(ClientPeppol::class, 'client_id');
     }
 
     public function productPrices(): HasMany

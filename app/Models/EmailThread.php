@@ -41,19 +41,19 @@ class EmailThread extends Model
     */
 
     /**
-     * Get the user who owns this thread
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
      * Get all messages in this thread
      */
     public function messages(): HasMany
     {
         return $this->hasMany(EmailMessage::class, 'thread_id');
+    }
+
+    /**
+     * Get the user who owns this thread
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     #endregion

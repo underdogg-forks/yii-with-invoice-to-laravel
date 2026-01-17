@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Tenant extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $casts = [
         'is_active' => 'boolean',
@@ -68,14 +69,14 @@ class Tenant extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function users(): HasMany
-    {
-        return $this->hasMany(User::class);
-    }
-
     public function settings(): HasMany
     {
         return $this->hasMany(TenantSetting::class);
+    }
+
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class);
     }
 
     #endregion

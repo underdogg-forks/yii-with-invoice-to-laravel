@@ -486,6 +486,187 @@ php artisan config:clear
 - Update documentation as you go
 - Security first, always
 
+## CRITICAL: File Creation Rules for AI Agents
+
+### ⚠️ MANDATORY BEHAVIOR
+
+**When asked to create code, implementations, or architectures:**
+
+1. **CREATE THE ACTUAL FILES FIRST** - Use `create` and `edit` tools immediately
+2. **VERIFY FILES EXIST** - Check with `view` or `bash` commands
+3. **COMMIT THE FILES** - Use `report_progress` only after files are created
+4. **THEN UPDATE DOCS** - Documentation describes what was actually created
+
+### ❌ FORBIDDEN BEHAVIOR
+
+**NEVER do these things:**
+
+- Update PR descriptions or documentation to describe files you haven't created yet
+- Say "I will create..." or "Creating files now..." without actually creating them
+- Use `report_progress` tool when no actual code files have been created
+- Plan phases without immediately executing each phase
+- Describe implementation details of non-existent files
+
+### ✅ CORRECT WORKFLOW
+
+```
+Step 1: CREATE files with create/edit tools
+    create("app/Services/Peppol/StoreCoveClient.php", <full code>)
+    create("app/Enums/HttpMethod.php", <full code>)
+    create("app/Contracts/ApiClientInterface.php", <full code>)
+
+Step 2: VERIFY files exist
+    view("app/Services/Peppol/")
+    bash("ls -la app/Services/Peppol/")
+
+Step 3: COMMIT the actual files
+    report_progress("Created Peppol infrastructure", <pr description>)
+
+Step 4: IF NEEDED, update documentation
+    edit(".junie/guidelines.md", <add notes about new files>)
+```
+
+### ❌ WRONG WORKFLOW
+
+```
+Step 1: report_progress("Created Peppol infrastructure", <describes files>)
+Step 2: User checks - files don't exist
+Step 3: Confusion and wasted time
+```
+
+### Verification Before Committing
+
+Before every `report_progress` call, ask yourself:
+
+1. **Did I use `create` or `edit` tools to create the files I'm describing?**
+   - If NO → Stop and create them first
+   - If YES → Proceed
+
+2. **Can I view these files in the repository right now?**
+   - If NO → They don't exist, create them first
+   - If YES → Proceed
+
+3. **Would `git status` show my new files?**
+   - If NO → Files not created, create them first
+   - If YES → Proceed
+
+### Phase Implementation Example
+
+**CORRECT Multi-Phase Implementation:**
+
+```typescript
+// Phase 1 Implementation
+create("app/Enums/HttpMethod.php", <code>)
+create("app/Contracts/ApiClientInterface.php", <code>)
+create("app/Services/Http/ApiClient.php", <code>)
+report_progress("Phase 1 complete: Base infrastructure")
+
+// Phase 2 Implementation  
+create("app/Services/Peppol/StoreCoveClient.php", <code>)
+create("app/Services/Peppol/LetsPeppolClient.php", <code>)
+report_progress("Phase 2 complete: Provider clients")
+
+// Phase 3 Implementation
+create("app/Services/Peppol/StoreCove/DocumentsEndpoint.php", <code>)
+create("app/Services/Peppol/StoreCove/DeliveryStatusEndpoint.php", <code>)
+report_progress("Phase 3 complete: Endpoint groups")
+```
+
+**WRONG Multi-Phase Implementation:**
+
+```typescript
+// All at once, no actual file creation
+report_progress("Phases 1-3 complete", <describes all files that don't exist>)
+```
+
+### The Ultimate Test
+
+**If someone clones the repository after your commit, will all the files you described in the PR description actually exist?**
+
+- If NO → You did it wrong
+- If YES → You did it right
+
+### Quick Self-Check
+
+When you're about to use `report_progress`, run this mental checklist:
+
+```
+□ I used `create` tool to create new files
+□ I used `edit` tool to modify existing files  
+□ I can view the files using `view` tool
+□ The files contain actual code, not placeholders
+□ The PR description describes files that actually exist
+□ I'm not describing planned work, only completed work
+```
+
+If ANY checkbox is unchecked → **DO NOT use report_progress yet**
+
+### Optimal Prompt for GitHub Copilot Agent
+
+**Use this exact prompt for agents to prevent this issue:**
+
+```
+You are tasked with implementing [feature description].
+
+CRITICAL RULES:
+1. CREATE all files immediately using create/edit tools
+2. VERIFY files exist before committing
+3. COMMIT only after files are actually created
+4. NEVER describe files in documentation before they exist
+
+Your task is to OUTPUT actual working code files, not to PLAN or DESCRIBE what you will create.
+
+If you find yourself writing "I will create..." or updating documentation about code that doesn't exist yet, STOP. Create the actual files first.
+
+Workflow:
+- Step 1: Create all necessary files with full implementation
+- Step 2: Verify files exist in repository
+- Step 3: Commit the changes
+- Step 4: Update documentation to match what was created
+
+BEGIN IMPLEMENTATION NOW.
+```
+
+### Examples of Correct Behavior
+
+**Creating a new service:**
+
+```php
+// CORRECT: Create the file first
+create("app/Services/InvoiceCalculator.php", `<?php
+
+namespace App\Services;
+
+class InvoiceCalculator
+{
+    public function calculateTotal(Invoice $invoice): float
+    {
+        return $invoice->subtotal + $invoice->tax;
+    }
+}
+`)
+
+// Then verify
+view("app/Services/InvoiceCalculator.php")
+
+// Then commit
+report_progress("Add InvoiceCalculator service")
+```
+
+**WRONG approach:**
+
+```php
+// WRONG: Just describing without creating
+report_progress("Created InvoiceCalculator service with calculateTotal method...")
+// (No file actually created)
+```
+
+### Summary
+
+**CREATE FIRST, DOCUMENT SECOND. NEVER THE OTHER WAY AROUND.**
+
+This is non-negotiable. If you violate this rule, you waste everyone's time and create confusion.
+
 ## UI Development Guidelines (Phase 8+)
 
 ### Laravel Filament v4

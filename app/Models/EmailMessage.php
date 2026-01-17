@@ -45,22 +45,6 @@ class EmailMessage extends Model
     */
 
     /**
-     * Get the thread this message belongs to
-     */
-    public function thread(): BelongsTo
-    {
-        return $this->belongsTo(EmailThread::class, 'thread_id');
-    }
-
-    /**
-     * Get the user who owns this message
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
      * Get all attachments for this message
      */
     public function attachments(): HasMany
@@ -74,6 +58,22 @@ class EmailMessage extends Model
     public function related(): MorphTo
     {
         return $this->morphTo('related');
+    }
+
+    /**
+     * Get the thread this message belongs to
+     */
+    public function thread(): BelongsTo
+    {
+        return $this->belongsTo(EmailThread::class, 'thread_id');
+    }
+
+    /**
+     * Get the user who owns this message
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     #endregion

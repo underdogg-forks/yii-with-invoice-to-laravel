@@ -57,14 +57,9 @@ class SalesOrder extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function user(): BelongsTo
+    public function completedBy(): BelongsTo
     {
-        return $this->belongsTo(User::class);
-    }
-
-    public function quote(): BelongsTo
-    {
-        return $this->belongsTo(Quote::class);
+        return $this->belongsTo(User::class, 'completed_by');
     }
 
     public function confirmedBy(): BelongsTo
@@ -72,14 +67,22 @@ class SalesOrder extends Model
         return $this->belongsTo(User::class, 'confirmed_by');
     }
 
-    public function completedBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'completed_by');
-    }
-
     public function invoice(): HasOne
     {
         return $this->hasOne(Invoice::class, 'so_id');
+    }
+
+    public function quote(): BelongsTo
+    {
+        return $this->belongsTo(Quote::class);
+    }
+
+    /**
+     * Get the user who created this sales order
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     #endregion
