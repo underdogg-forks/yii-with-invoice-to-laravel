@@ -809,31 +809,31 @@ Note: Tests correctly written but expose architecture issue - provider clients r
 - `EInvoicingBeClientTest` - 7 tests for dual auth (Bearer + API key)
 - `PeppolProviderFactoryTest` - 10 tests for provider instantiation
 
-#### Batch 3: StoreCove Endpoints (26 tests, 100% passing)
-- `DocumentsEndpointTest` - 6 tests (submit, status, retrieve, cancel)
-- `DeliveryStatusEndpointTest` - 5 tests (status tracking, history)
-- `LegalEntitiesEndpointTest` - 5 tests (CRUD operations)
-- `WebhooksEndpointTest` - 5 tests (webhook management)
-- `ValidationEndpointTest` - 5 tests (document validation)
+#### Batch 3: StoreCove Endpoints (26 tests, ✅ Fakes + Fixtures)
+- `DocumentsEndpointTest` - 6 tests (submit, status, retrieve, cancel) - Uses FakeStoreCoveClient + fixtures
+- `DeliveryStatusEndpointTest` - 5 tests (status tracking, history) - Uses FakeStoreCoveClient + fixtures
+- `LegalEntitiesEndpointTest` - 5 tests (CRUD operations) - Uses FakeStoreCoveClient + fixtures
+- `WebhooksEndpointTest` - 5 tests (webhook management) - Uses FakeStoreCoveClient + fixtures
+- `ValidationEndpointTest` - 5 tests (document validation) - Uses FakeStoreCoveClient + fixtures
 
-#### Batch 4: LetsPeppol Endpoints (19 tests, 100% passing)
-- `InvoiceEndpointTest` - 5 tests (send, retrieve, status)
-- `ParticipantEndpointTest` - 5 tests (lookup, verification)
-- `DeliveryEndpointTest` - 4 tests (delivery tracking)
-- `ValidationServiceEndpointTest` - 5 tests (pre-send validation)
+#### Batch 4: LetsPeppol Endpoints (19 tests, ✅ Fakes + Fixtures)
+- `InvoiceEndpointTest` - 5 tests (send, retrieve, status) - Uses FakeLetsPeppolClient + fixtures
+- `ParticipantEndpointTest` - 5 tests (lookup, verification) - Uses FakeLetsPeppolClient + fixtures
+- `DeliveryEndpointTest` - 4 tests (delivery tracking) - Uses FakeLetsPeppolClient + fixtures
+- `ValidationServiceEndpointTest` - 5 tests (pre-send validation) - Uses FakeLetsPeppolClient + fixtures
 
-#### Batch 5: Peppyrus Endpoints (18 tests, 100% passing)
-- `TransmissionEndpointTest` - 6 tests (SOAP transmission)
-- `AcknowledgmentEndpointTest` - 4 tests (MDN handling)
-- `AccessPointEndpointTest` - 4 tests (AP queries)
-- `ComplianceEndpointTest` - 4 tests (compliance checking)
+#### Batch 5: Peppyrus Endpoints (18 tests, ✅ Fakes + Fixtures)
+- `TransmissionEndpointTest` - 6 tests (SOAP transmission) - Uses FakePeppyrusClient + fixtures
+- `AcknowledgmentEndpointTest` - 4 tests (MDN handling) - Uses FakePeppyrusClient + fixtures
+- `AccessPointEndpointTest` - 4 tests (AP queries) - Uses FakePeppyrusClient + fixtures
+- `ComplianceEndpointTest` - 4 tests (compliance checking) - Uses FakePeppyrusClient + fixtures
 
-#### Batch 6: E-invoicing.be Endpoints (25 tests, 100% passing)
-- `InvoiceSubmissionEndpointTest` - 6 tests (Belgian submission)
-- `StatusTrackingEndpointTest` - 4 tests (status polling)
-- `VatValidationEndpointTest` - 5 tests (VAT number validation)
-- `ComplianceCheckEndpointTest` - 5 tests (Belgian rules)
-- `ParticipantLookupEndpointTest` - 5 tests (BE participant lookup)
+#### Batch 6: E-invoicing.be Endpoints (25 tests, ✅ Fakes + Fixtures)
+- `InvoiceSubmissionEndpointTest` - 6 tests (Belgian submission) - Uses FakeEInvoicingBeClient + fixtures
+- `StatusTrackingEndpointTest` - 4 tests (status polling) - Uses FakeEInvoicingBeClient + fixtures
+- `VatValidationEndpointTest` - 5 tests (VAT number validation) - Uses FakeEInvoicingBeClient + fixtures
+- `ComplianceCheckEndpointTest` - 5 tests (Belgian rules) - Uses FakeEInvoicingBeClient + fixtures
+- `ParticipantLookupEndpointTest` - 5 tests (BE participant lookup) - Uses FakeEInvoicingBeClient + fixtures
 
 ### Test Quality Standards
 
@@ -842,16 +842,16 @@ Note: Tests correctly written but expose architecture issue - provider clients r
 2. **PHPUnit Attributes:**
    - `#[Test]` on every test method
    - `#[CoversClass(ClassName::class)]` on every test class
-3. **Proper Mocking:**
-   - **Prefer Fakes over Mocks** - Use real test double implementations
-   - `Illuminate\Support\Facades\Http::fake()` for HTTP calls
-   - `Illuminate\Support\Facades\Log::fake()` for logging
-   - Custom fakes (e.g., `FakeApiClient`) for domain objects
-   - Avoid Mockery when Laravel fakes or custom fakes work better
+3. **Fakes + Fixtures Pattern:**
+   - **Fakes over Mocks** - Use custom fake implementations (FakeApiClient, FakeStoreCoveClient, etc.)
+   - **Fixtures over Inline Data** - Load test data from centralized fixture files
+   - Laravel fakes (`Http::fake()`, `Log::fake()`) for built-in services
+   - Custom fakes in `tests/Fakes/` for domain-specific test doubles
 4. **Clear Assertions:**
    - Meaningful assertion messages
    - Multiple assertions per test when appropriate
    - Both success and error cases tested
+   - Request verification with `hasRequest()` when using fakes
 
 ### Testing Philosophy: Fakes > Mocks
 
@@ -933,10 +933,50 @@ Once fixed, the 39 provider client tests will pass (tests are correctly written)
 
 When adding new Peppol features:
 1. **Write tests first** defining expected behavior
-2. **Use Fakes over Mocks** - Create test doubles with real implementations
-3. **Implement the feature** to make tests pass
-4. **Refactor with confidence** - tests protect against regressions
-5. **Use `it_*` naming** for readability and clarity
-6. **Leverage Laravel fakes** (Http, Log, Storage) when available
-7. **Create custom fakes** for domain-specific test doubles
-8. **Keep tests simple** - prefer explicit behavior over complex expectations
+2. **Use Fakes over Mocks** - Create test doubles with real implementations (see `tests/Fakes/`)
+3. **Use Fixtures over Inline Data** - Centralize test data in fixture files (see `tests/Fixtures/Peppol/`)
+4. **Extend PeppolTestCase** - Use `loadFixture()` for accessing test data
+5. **Implement the feature** to make tests pass
+6. **Refactor with confidence** - tests protect against regressions
+7. **Use `it_*` naming** for readability and clarity
+8. **Leverage Laravel fakes** (Http, Log, Storage) when available
+9. **Verify requests** with `hasRequest()` when using custom fakes
+10. **Keep tests simple** - prefer explicit behavior over complex expectations
+
+### Example Test with Fakes + Fixtures
+
+```php
+class DocumentsEndpointTest extends PeppolTestCase
+{
+    private FakeStoreCoveClient $fakeClient;
+    private DocumentsEndpoint $endpoint;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->fakeClient = new FakeStoreCoveClient();
+        $this->endpoint = new DocumentsEndpoint($this->fakeClient);
+    }
+
+    #[Test]
+    public function it_submits_document_successfully(): void
+    {
+        /* Arrange */
+        $fixture = $this->loadFixture('storecove', 'document_submission.basic');
+        $data = $fixture['request'];
+        $expectedResponse = $fixture['response'];
+        
+        $this->fakeClient->addResponse($expectedResponse);
+
+        /* Act */
+        $result = $this->endpoint->submitDocument($data);
+
+        /* Assert */
+        $this->assertEquals($expectedResponse, $result);
+        $this->assertTrue($this->fakeClient->hasRequest(
+            HttpMethod::POST->value,
+            '/api/v2/document_submissions'
+        ));
+    }
+}
+```
