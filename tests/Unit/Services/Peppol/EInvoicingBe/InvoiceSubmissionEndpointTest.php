@@ -4,157 +4,117 @@ namespace Tests\Unit\Services\Peppol\EInvoicingBe;
 
 use App\Enums\HttpMethod;
 use App\Services\Peppol\EInvoicingBe\InvoiceSubmissionEndpoint;
-use App\Services\Peppol\EInvoicingBeClient;
-use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Tests\Fakes\FakeEInvoicingBeClient;
+use Tests\PeppolTestCase;
 
 #[CoversClass(InvoiceSubmissionEndpoint::class)]
-class InvoiceSubmissionEndpointTest extends TestCase
+class InvoiceSubmissionEndpointTest extends PeppolTestCase
 {
-    private EInvoicingBeClient $mockClient;
+    private FakeEInvoicingBeClient $fakeClient;
     private InvoiceSubmissionEndpoint $endpoint;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->mockClient = Mockery::mock(EInvoicingBeClient::class);
-        $this->endpoint = new InvoiceSubmissionEndpoint($this->mockClient);
+        $this->fakeClient = new FakeEInvoicingBeClient();
+        $this->endpoint = new InvoiceSubmissionEndpoint($this->fakeClient);
     }
 
     #[Test]
     public function it_submits_invoice(): void
     {
         /* Arrange */
-        $invoiceData = [
-            'document' => '<Invoice/>',
-            'vat_number' => 'BE0123456789',
-        ];
+        $invoiceData = $this->loadFixture('einvoicing_be', 'invoice_submission.request');
+        $expectedResponse = $this->loadFixture('einvoicing_be', 'invoice_submission.response');
         
-        $expectedResponse = [
-            'submission_id' => 'sub-be-123',
-            'status' => 'accepted',
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, '/api/v1/invoices/submit', $invoiceData)
-            ->andReturn($expectedResponse);
+        $this->fakeClient->addResponse($expectedResponse);
 
         /* Act */
         $response = $this->endpoint->submitInvoice($invoiceData);
 
         /* Assert */
         $this->assertEquals($expectedResponse, $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, '/api/v1/invoices/submit'));
     }
 
     #[Test]
     public function it_gets_submission_status(): void
     {
         /* Arrange */
-        $submissionId = 'sub-be-456';
-        $expectedResponse = [
-            'submission_id' => $submissionId,
-            'status' => 'processed',
-            'processed_at' => '2024-01-15T10:30:00Z',
-        ];
+        $submissionId = $this->loadFixture('einvoicing_be', 'submission_status.processed.submission_id');
+        $expectedResponse = $this->loadFixture('einvoicing_be', 'submission_status.processed.response');
         
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/api/v1/invoices/submissions/{$submissionId}/status")
-            ->andReturn($expectedResponse);
+        $this->fakeClient->addResponse($expectedResponse);
 
         /* Act */
         $response = $this->endpoint->getSubmissionStatus($submissionId);
 
         /* Assert */
         $this->assertEquals($expectedResponse, $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/api/v1/invoices/submissions/{$submissionId}/status"));
     }
 
     #[Test]
     public function it_cancels_submission(): void
     {
         /* Arrange */
-        $submissionId = 'sub-be-789';
-        $expectedResponse = [
-            'submission_id' => $submissionId,
-            'status' => 'cancelled',
-        ];
+        $submissionId = $this->loadFixture('einvoicing_be', 'submission_cancel.submission_id');
+        $expectedResponse = $this->loadFixture('einvoicing_be', 'submission_cancel.response');
         
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, "/api/v1/invoices/submissions/{$submissionId}/cancel")
-            ->andReturn($expectedResponse);
+        $this->fakeClient->addResponse($expectedResponse);
 
         /* Act */
         $response = $this->endpoint->cancelSubmission($submissionId);
 
         /* Assert */
         $this->assertEquals($expectedResponse, $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, "/api/v1/invoices/submissions/{$submissionId}/cancel"));
     }
 
     #[Test]
     public function it_submits_invoice_with_belgian_vat(): void
     {
         /* Arrange */
-        $invoiceData = [
-            'document' => '<Invoice/>',
-            'vat_number' => 'BE0987654321',
-            'belgian_specific_data' => ['structured_communication' => '+++123/4567/89012+++'],
-        ];
+        $invoiceData = $this->loadFixture('einvoicing_be', 'invoice_submission.with_belgian_vat.request');
+        $expectedResponse = $this->loadFixture('einvoicing_be', 'invoice_submission.with_belgian_vat.response');
         
-        $expectedResponse = ['submission_id' => 'sub-be-vat'];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, '/api/v1/invoices/submit', $invoiceData)
-            ->andReturn($expectedResponse);
+        $this->fakeClient->addResponse($expectedResponse);
 
         /* Act */
         $response = $this->endpoint->submitInvoice($invoiceData);
 
         /* Assert */
         $this->assertEquals('sub-be-vat', $response['submission_id']);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, '/api/v1/invoices/submit'));
     }
 
     #[Test]
     public function it_handles_pending_submission_status(): void
     {
         /* Arrange */
-        $submissionId = 'sub-be-pending';
-        $expectedResponse = [
-            'submission_id' => $submissionId,
-            'status' => 'pending',
-        ];
+        $submissionId = $this->loadFixture('einvoicing_be', 'submission_status.pending.submission_id');
+        $expectedResponse = $this->loadFixture('einvoicing_be', 'submission_status.pending.response');
         
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/api/v1/invoices/submissions/{$submissionId}/status")
-            ->andReturn($expectedResponse);
+        $this->fakeClient->addResponse($expectedResponse);
 
         /* Act */
         $response = $this->endpoint->getSubmissionStatus($submissionId);
 
         /* Assert */
         $this->assertEquals('pending', $response['status']);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/api/v1/invoices/submissions/{$submissionId}/status"));
     }
 
     #[Test]
     public function it_handles_rejected_submission_status(): void
     {
         /* Arrange */
-        $submissionId = 'sub-be-rejected';
-        $expectedResponse = [
-            'submission_id' => $submissionId,
-            'status' => 'rejected',
-            'reason' => 'Invalid VAT number format',
-        ];
+        $submissionId = $this->loadFixture('einvoicing_be', 'submission_status.rejected.submission_id');
+        $expectedResponse = $this->loadFixture('einvoicing_be', 'submission_status.rejected.response');
         
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/api/v1/invoices/submissions/{$submissionId}/status")
-            ->andReturn($expectedResponse);
+        $this->fakeClient->addResponse($expectedResponse);
 
         /* Act */
         $response = $this->endpoint->getSubmissionStatus($submissionId);
@@ -162,11 +122,6 @@ class InvoiceSubmissionEndpointTest extends TestCase
         /* Assert */
         $this->assertEquals('rejected', $response['status']);
         $this->assertNotEmpty($response['reason']);
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/api/v1/invoices/submissions/{$submissionId}/status"));
     }
 }

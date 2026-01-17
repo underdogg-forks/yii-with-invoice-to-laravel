@@ -4,43 +4,33 @@ namespace Tests\Unit\Services\Peppol\EInvoicingBe;
 
 use App\Enums\HttpMethod;
 use App\Services\Peppol\EInvoicingBe\ComplianceCheckEndpoint;
-use App\Services\Peppol\EInvoicingBeClient;
-use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Tests\Fakes\FakeEInvoicingBeClient;
+use Tests\PeppolTestCase;
 
 #[CoversClass(ComplianceCheckEndpoint::class)]
-class ComplianceCheckEndpointTest extends TestCase
+class ComplianceCheckEndpointTest extends PeppolTestCase
 {
-    private EInvoicingBeClient $mockClient;
+    private FakeEInvoicingBeClient $fakeClient;
     private ComplianceCheckEndpoint $endpoint;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->mockClient = Mockery::mock(EInvoicingBeClient::class);
-        $this->endpoint = new ComplianceCheckEndpoint($this->mockClient);
+        $this->fakeClient = new FakeEInvoicingBeClient();
+        $this->endpoint = new ComplianceCheckEndpoint($this->fakeClient);
     }
 
     #[Test]
     public function it_checks_belgian_compliance(): void
     {
         /* Arrange */
-        $invoiceData = [
-            'document' => '<Invoice/>',
-            'vat_number' => 'BE0123456789',
-        ];
+        $fixture = $this->loadFixture('einvoicing_be', 'compliance_check');
+        $invoiceData = $fixture['request'];
+        $expectedResponse = $fixture['response'];
         
-        $expectedResponse = [
-            'compliant' => true,
-            'belgian_requirements_met' => true,
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, '/api/v1/compliance/check', $invoiceData)
-            ->andReturn($expectedResponse);
+        $this->fakeClient->addResponse($expectedResponse);
 
         /* Act */
         $response = $this->endpoint->checkBelgianCompliance($invoiceData);
@@ -48,6 +38,7 @@ class ComplianceCheckEndpointTest extends TestCase
         /* Assert */
         $this->assertEquals($expectedResponse, $response);
         $this->assertTrue($response['compliant']);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, '/api/v1/compliance/check'));
     }
 
     #[Test]
@@ -157,9 +148,4 @@ class ComplianceCheckEndpointTest extends TestCase
         $this->assertTrue($response['structured_communication_valid']);
     }
 
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
-    }
 }
