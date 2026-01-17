@@ -843,13 +843,54 @@ Note: Tests correctly written but expose architecture issue - provider clients r
    - `#[Test]` on every test method
    - `#[CoversClass(ClassName::class)]` on every test class
 3. **Proper Mocking:**
+   - **Prefer Fakes over Mocks** - Use real test double implementations
    - `Illuminate\Support\Facades\Http::fake()` for HTTP calls
-   - `Mockery` for interface/class mocking
-   - `Mockery::close()` in `tearDown()`
+   - `Illuminate\Support\Facades\Log::fake()` for logging
+   - Custom fakes (e.g., `FakeApiClient`) for domain objects
+   - Avoid Mockery when Laravel fakes or custom fakes work better
 4. **Clear Assertions:**
    - Meaningful assertion messages
    - Multiple assertions per test when appropriate
    - Both success and error cases tested
+
+### Testing Philosophy: Fakes > Mocks
+
+**Prefer Fakes (test doubles with real behavior):**
+```php
+// ✅ Good - Using a Fake
+$fakeClient = new FakeApiClient();
+$fakeClient->setNextResponse($response);
+$result = $service->call($fakeClient);
+$this->assertTrue($fakeClient->hasRequest(HttpMethod::GET, $url));
+```
+
+**Avoid Mocks (complex mock expectations) when possible:**
+```php
+// ❌ Less preferred - Using Mockery
+$mock = Mockery::mock(ApiClientInterface::class);
+$mock->shouldReceive('request')->once()->with(...)->andReturn($response);
+```
+
+**Why Fakes are better:**
+1. **Clarity** - Explicit behavior, no hidden expectations
+2. **Debugging** - Can inspect state and recorded calls
+3. **Maintainability** - Easier to update when interface changes
+4. **No framework** - Less dependency on mocking libraries
+5. **Realistic** - Real implementations catch more bugs
+
+**Available Laravel Fakes:**
+- `Http::fake()` - Mock HTTP requests
+- `Log::fake()` - Capture log messages
+- `Storage::fake()` - In-memory filesystem
+- `Queue::fake()` - Mock queued jobs
+- `Mail::fake()` - Capture emails
+- `Event::fake()` - Mock events
+- `Notification::fake()` - Mock notifications
+
+**Custom Fakes:**
+Create in `tests/Fakes/` directory:
+- `FakeApiClient` - API client test double
+- Add more as needed for domain-specific testing
 
 ### Running Tests
 
@@ -891,8 +932,11 @@ Once fixed, the 39 provider client tests will pass (tests are correctly written)
 ## Remember: Test-Driven Development
 
 When adding new Peppol features:
-1. Write tests first defining expected behavior
-2. Implement the feature to make tests pass
-3. Refactor with confidence - tests protect against regressions
-4. Use `it_*` naming for readability
-5. Mock external dependencies (HTTP, database) appropriately
+1. **Write tests first** defining expected behavior
+2. **Use Fakes over Mocks** - Create test doubles with real implementations
+3. **Implement the feature** to make tests pass
+4. **Refactor with confidence** - tests protect against regressions
+5. **Use `it_*` naming** for readability and clarity
+6. **Leverage Laravel fakes** (Http, Log, Storage) when available
+7. **Create custom fakes** for domain-specific test doubles
+8. **Keep tests simple** - prefer explicit behavior over complex expectations
