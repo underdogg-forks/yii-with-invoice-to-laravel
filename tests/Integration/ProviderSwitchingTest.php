@@ -121,6 +121,10 @@ class ProviderSwitchingTest extends TestCase
                 'invoice_id' => 'letspeppol-inv-456',
                 'status' => 'accepted',
             ], 200),
+            'https://api.peppyrus.com/oauth/token' => Http::response([
+                'access_token' => 'peppyrus-token',
+                'expires_in' => 3600,
+            ], 200),
             'https://api.peppyrus.com/*' => Http::response([
                 'transmission_id' => 'peppyrus-tx-789',
                 'state' => 'transmitted',
@@ -251,7 +255,7 @@ class ProviderSwitchingTest extends TestCase
     public function it_throws_exception_for_unsupported_provider(): void
     {
         /* Arrange */
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(\ValueError::class);
 
         /* Act */
         $this->factory->createFromString('invalid_provider');

@@ -4,7 +4,7 @@ namespace Tests\Unit\Services\Peppol\EInvoicingBe;
 
 use App\Enums\HttpMethod;
 use App\Services\Peppol\EInvoicingBe\VatValidationEndpoint;
-use App\Services\Peppol\EInvoicingBeClient;
+use App\Services\Peppol\EInvoicingBe\EInvoicingBeClient;
 use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

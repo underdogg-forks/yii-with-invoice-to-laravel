@@ -49,7 +49,7 @@ abstract class PeppolTestCase extends BaseTestCase
         $value = $array;
         
         foreach ($keys as $segment) {
-            if (!isset($value[$segment])) {
+            if (!is_array($value) || !array_key_exists($segment, $value)) {
                 throw new \RuntimeException("Key '{$key}' not found in fixture");
             }
             $value = $value[$segment];

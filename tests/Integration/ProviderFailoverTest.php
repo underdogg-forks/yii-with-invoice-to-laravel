@@ -91,6 +91,10 @@ class ProviderFailoverTest extends TestCase
         Http::fake([
             'https://api.storecove.com/*' => Http::response(null, 503), // 1st fails
             'https://api.letspeppol.com/*' => Http::response(null, 500), // 2nd fails
+            'https://api.peppyrus.com/oauth/token' => Http::response([
+                'access_token' => 'peppyrus-token',
+                'expires_in' => 3600,
+            ], 200),
             'https://api.peppyrus.com/*' => Http::response([ // 3rd succeeds
                 'transmission_id' => 'peppyrus-success-456',
                 'state' => 'transmitted',

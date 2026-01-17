@@ -30,7 +30,7 @@ class LetsPeppolClientTest extends TestCase
         $this->mockApiClient->shouldReceive('setHeaders')
             ->once()
             ->with(Mockery::on(function ($headers) {
-                return isset($headers['X-API-Key']) &&
+                return array_key_exists('X-API-Key', $headers) &&
                        isset($headers['Content-Type']) &&
                        isset($headers['Accept']) &&
                        $headers['Content-Type'] === 'application/json' &&
