@@ -4,139 +4,96 @@ namespace Tests\Unit\Services\Peppol\LetsPeppol;
 
 use App\Enums\HttpMethod;
 use App\Services\Peppol\LetsPeppol\InvoiceEndpoint;
-use App\Services\Peppol\LetsPeppolClient;
-use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Tests\Fakes\FakeLetsPeppolClient;
+use Tests\PeppolTestCase;
 
 #[CoversClass(InvoiceEndpoint::class)]
-class InvoiceEndpointTest extends TestCase
+class InvoiceEndpointTest extends PeppolTestCase
 {
-    private LetsPeppolClient $mockClient;
+    private FakeLetsPeppolClient $fakeClient;
     private InvoiceEndpoint $endpoint;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->mockClient = Mockery::mock(LetsPeppolClient::class);
-        $this->endpoint = new InvoiceEndpoint($this->mockClient);
+        $this->fakeClient = new FakeLetsPeppolClient();
+        $this->endpoint = new InvoiceEndpoint($this->fakeClient);
     }
 
     #[Test]
     public function it_sends_invoice(): void
     {
         /* Arrange */
-        $invoiceData = [
-            'document' => '<Invoice/>',
-            'recipient' => '0088:1234567890123',
-        ];
-        
-        $expectedResponse = ['invoice_id' => 'inv-123', 'status' => 'sent'];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, '/v1/invoices', $invoiceData)
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('letspeppol', 'invoice_submission.basic');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->sendInvoice($invoiceData);
+        $response = $this->endpoint->sendInvoice($fixture['request']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, '/v1/invoices'));
     }
 
     #[Test]
     public function it_gets_invoice_status(): void
     {
         /* Arrange */
-        $invoiceId = 'inv-456';
-        $expectedResponse = [
-            'invoice_id' => $invoiceId,
-            'status' => 'delivered',
-            'updated_at' => '2024-01-15T10:30:00Z',
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/v1/invoices/{$invoiceId}/status")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('letspeppol', 'invoice_status.delivered');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->getInvoiceStatus($invoiceId);
+        $response = $this->endpoint->getInvoiceStatus($fixture['invoice_id']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/v1/invoices/{$fixture['invoice_id']}/status"));
     }
 
     #[Test]
     public function it_cancels_invoice(): void
     {
         /* Arrange */
-        $invoiceId = 'inv-789';
-        $expectedResponse = [
-            'invoice_id' => $invoiceId,
-            'status' => 'cancelled',
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, "/v1/invoices/{$invoiceId}/cancel")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('letspeppol', 'invoice_status.cancelled');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->cancelInvoice($invoiceId);
+        $response = $this->endpoint->cancelInvoice($fixture['invoice_id']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, "/v1/invoices/{$fixture['invoice_id']}/cancel"));
     }
 
     #[Test]
     public function it_sends_invoice_with_metadata(): void
     {
         /* Arrange */
-        $invoiceData = [
-            'document' => '<Invoice/>',
-            'recipient' => '0088:9876543210987',
-            'metadata' => ['reference' => 'PO-12345'],
-        ];
-        
-        $expectedResponse = ['invoice_id' => 'inv-meta', 'status' => 'sent'];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, '/v1/invoices', $invoiceData)
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('letspeppol', 'invoice_submission.with_metadata');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->sendInvoice($invoiceData);
+        $response = $this->endpoint->sendInvoice($fixture['request']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, '/v1/invoices'));
     }
 
     #[Test]
     public function it_handles_pending_invoice_status(): void
     {
         /* Arrange */
-        $invoiceId = 'inv-pending';
-        $expectedResponse = ['invoice_id' => $invoiceId, 'status' => 'pending'];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/v1/invoices/{$invoiceId}/status")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('letspeppol', 'invoice_status.pending');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->getInvoiceStatus($invoiceId);
+        $response = $this->endpoint->getInvoiceStatus($fixture['invoice_id']);
 
         /* Assert */
         $this->assertEquals('pending', $response['status']);
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/v1/invoices/{$fixture['invoice_id']}/status"));
     }
 }

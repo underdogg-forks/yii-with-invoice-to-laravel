@@ -4,132 +4,85 @@ namespace Tests\Unit\Services\Peppol\Peppyrus;
 
 use App\Enums\HttpMethod;
 use App\Services\Peppol\Peppyrus\ComplianceEndpoint;
-use App\Services\Peppol\PeppyrusClient;
-use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Tests\Fakes\FakePeppyrusClient;
+use Tests\PeppolTestCase;
 
 #[CoversClass(ComplianceEndpoint::class)]
-class ComplianceEndpointTest extends TestCase
+class ComplianceEndpointTest extends PeppolTestCase
 {
-    private PeppyrusClient $mockClient;
+    private FakePeppyrusClient $fakeClient;
     private ComplianceEndpoint $endpoint;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->mockClient = Mockery::mock(PeppyrusClient::class);
-        $this->endpoint = new ComplianceEndpoint($this->mockClient);
+        $this->fakeClient = new FakePeppyrusClient();
+        $this->endpoint = new ComplianceEndpoint($this->fakeClient);
     }
 
     #[Test]
     public function it_validates_compliance(): void
     {
         /* Arrange */
-        $documentData = ['document' => '<Invoice/>'];
-        $expectedResponse = [
-            'compliant' => true,
-            'errors' => [],
-            'warnings' => [],
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, '/api/compliance/validate', $documentData)
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('peppyrus', 'compliance_validation.compliant');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->validateCompliance($documentData);
+        $response = $this->endpoint->validateCompliance($fixture['request']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
         $this->assertTrue($response['compliant']);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, '/api/compliance/validate'));
     }
 
     #[Test]
     public function it_gets_validation_report(): void
     {
         /* Arrange */
-        $validationId = 'val-123';
-        $expectedResponse = [
-            'validation_id' => $validationId,
-            'compliant' => true,
-            'checked_at' => '2024-01-15T10:30:00Z',
-            'rules_checked' => 150,
-            'rules_passed' => 150,
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/api/compliance/reports/{$validationId}")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('peppyrus', 'validation_report.passed');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->getValidationReport($validationId);
+        $response = $this->endpoint->getValidationReport($fixture['validation_id']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/api/compliance/reports/{$fixture['validation_id']}"));
     }
 
     #[Test]
     public function it_returns_compliance_violations(): void
     {
         /* Arrange */
-        $documentData = ['document' => '<InvalidInvoice/>'];
-        $expectedResponse = [
-            'compliant' => false,
-            'errors' => ['Missing required element: cbc:ID'],
-            'warnings' => ['Recommended element missing: cbc:Note'],
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, '/api/compliance/validate', $documentData)
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('peppyrus', 'compliance_validation.non_compliant');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->validateCompliance($documentData);
+        $response = $this->endpoint->validateCompliance($fixture['request']);
 
         /* Assert */
         $this->assertFalse($response['compliant']);
         $this->assertNotEmpty($response['errors']);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, '/api/compliance/validate'));
     }
 
     #[Test]
     public function it_gets_detailed_validation_report(): void
     {
         /* Arrange */
-        $validationId = 'val-detailed';
-        $expectedResponse = [
-            'validation_id' => $validationId,
-            'compliant' => false,
-            'rules_checked' => 150,
-            'rules_passed' => 147,
-            'rules_failed' => 3,
-            'failed_rules' => [
-                ['rule' => 'BR-01', 'message' => 'Invoice must have an ID'],
-                ['rule' => 'BR-02', 'message' => 'Invoice must have an issue date'],
-            ],
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/api/compliance/reports/{$validationId}")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('peppyrus', 'validation_report.failed');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->getValidationReport($validationId);
+        $response = $this->endpoint->getValidationReport($fixture['validation_id']);
 
         /* Assert */
         $this->assertFalse($response['compliant']);
         $this->assertEquals(3, $response['rules_failed']);
         $this->assertNotEmpty($response['failed_rules']);
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/api/compliance/reports/{$fixture['validation_id']}"));
     }
 }

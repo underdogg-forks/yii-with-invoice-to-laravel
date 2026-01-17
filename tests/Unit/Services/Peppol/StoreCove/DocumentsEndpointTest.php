@@ -4,176 +4,111 @@ namespace Tests\Unit\Services\Peppol\StoreCove;
 
 use App\Enums\HttpMethod;
 use App\Services\Peppol\StoreCove\DocumentsEndpoint;
-use App\Services\Peppol\StoreCoveClient;
-use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Tests\Fakes\FakeStoreCoveClient;
+use Tests\PeppolTestCase;
 
 #[CoversClass(DocumentsEndpoint::class)]
-class DocumentsEndpointTest extends TestCase
+class DocumentsEndpointTest extends PeppolTestCase
 {
-    private StoreCoveClient $mockClient;
+    private FakeStoreCoveClient $fakeClient;
     private DocumentsEndpoint $endpoint;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->mockClient = Mockery::mock(StoreCoveClient::class);
-        $this->endpoint = new DocumentsEndpoint($this->mockClient);
+        $this->fakeClient = new FakeStoreCoveClient();
+        $this->endpoint = new DocumentsEndpoint($this->fakeClient);
     }
 
     #[Test]
     public function it_submits_document_successfully(): void
     {
         /* Arrange */
-        $documentData = [
-            'legal_entity_id' => 123,
-            'document' => '<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"/>',
-        ];
-        
-        $expectedResponse = [
-            'guid' => 'doc-guid-123',
-            'status' => 'submitted',
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, '/api/v2/document_submissions', $documentData)
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('storecove', 'document_submission.basic');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->submitDocument($documentData);
+        $response = $this->endpoint->submitDocument($fixture['request']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, '/api/v2/document_submissions'));
     }
 
     #[Test]
     public function it_gets_document_status(): void
     {
         /* Arrange */
-        $documentId = 'doc-guid-456';
-        $expectedResponse = [
-            'guid' => $documentId,
-            'status' => 'delivered',
-            'updated_at' => '2024-01-15T10:30:00Z',
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/api/v2/document_submissions/{$documentId}")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('storecove', 'document_status.delivered');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->getDocumentStatus($documentId);
+        $response = $this->endpoint->getDocumentStatus($fixture['document_id']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/api/v2/document_submissions/{$fixture['document_id']}"));
     }
 
     #[Test]
     public function it_gets_full_document(): void
     {
         /* Arrange */
-        $documentId = 'doc-guid-789';
-        $expectedResponse = [
-            'guid' => $documentId,
-            'document' => '<Invoice>...</Invoice>',
-            'metadata' => ['sender' => 'Company A'],
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/api/v2/document_submissions/{$documentId}/document")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('storecove', 'document_retrieval.full_document');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->getDocument($documentId);
+        $response = $this->endpoint->getDocument($fixture['document_id']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/api/v2/document_submissions/{$fixture['document_id']}/document"));
     }
 
     #[Test]
     public function it_cancels_document(): void
     {
         /* Arrange */
-        $documentId = 'doc-guid-cancel';
-        $expectedResponse = [
-            'guid' => $documentId,
-            'status' => 'cancelled',
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::DELETE->value, "/api/v2/document_submissions/{$documentId}")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('storecove', 'document_status.cancelled');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->cancelDocument($documentId);
+        $response = $this->endpoint->cancelDocument($fixture['document_id']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::DELETE->value, "/api/v2/document_submissions/{$fixture['document_id']}"));
     }
 
     #[Test]
     public function it_submits_document_with_routing_information(): void
     {
         /* Arrange */
-        $documentData = [
-            'legal_entity_id' => 456,
-            'document' => '<Invoice/>',
-            'routing' => [
-                'eIdentifiers' => [
-                    ['scheme' => '0088', 'id' => '1234567890123']
-                ]
-            ],
-        ];
-        
-        $expectedResponse = ['guid' => 'doc-routed-123'];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, '/api/v2/document_submissions', $documentData)
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('storecove', 'document_submission.with_routing');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->submitDocument($documentData);
+        $response = $this->endpoint->submitDocument($fixture['request']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, '/api/v2/document_submissions'));
     }
 
     #[Test]
     public function it_handles_document_with_attachments(): void
     {
         /* Arrange */
-        $documentData = [
-            'legal_entity_id' => 789,
-            'document' => '<Invoice/>',
-            'attachments' => [
-                ['filename' => 'attachment.pdf', 'content' => 'base64content']
-            ],
-        ];
-        
-        $expectedResponse = ['guid' => 'doc-attach-456'];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, '/api/v2/document_submissions', $documentData)
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('storecove', 'document_submission.with_attachments');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->submitDocument($documentData);
+        $response = $this->endpoint->submitDocument($fixture['request']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
+        $this->assertEquals($fixture['response'], $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, '/api/v2/document_submissions'));
     }
 }

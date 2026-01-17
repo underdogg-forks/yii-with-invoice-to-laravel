@@ -4,152 +4,100 @@ namespace Tests\Unit\Services\Peppol\LetsPeppol;
 
 use App\Enums\HttpMethod;
 use App\Services\Peppol\LetsPeppol\ValidationServiceEndpoint;
-use App\Services\Peppol\LetsPeppolClient;
-use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Tests\Fakes\FakeLetsPeppolClient;
+use Tests\PeppolTestCase;
 
 #[CoversClass(ValidationServiceEndpoint::class)]
-class ValidationServiceEndpointTest extends TestCase
+class ValidationServiceEndpointTest extends PeppolTestCase
 {
-    private LetsPeppolClient $mockClient;
+    private FakeLetsPeppolClient $fakeClient;
     private ValidationServiceEndpoint $endpoint;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->mockClient = Mockery::mock(LetsPeppolClient::class);
-        $this->endpoint = new ValidationServiceEndpoint($this->mockClient);
+        $this->fakeClient = new FakeLetsPeppolClient();
+        $this->endpoint = new ValidationServiceEndpoint($this->fakeClient);
     }
 
     #[Test]
     public function it_validates_invoice(): void
     {
         /* Arrange */
-        $invoiceData = ['document' => '<Invoice/>'];
-        $expectedResponse = [
-            'valid' => true,
-            'errors' => [],
-            'warnings' => [],
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, '/v1/validation/invoice', $invoiceData)
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('letspeppol', 'validation.valid_invoice');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->validateInvoice($invoiceData);
+        $response = $this->endpoint->validateInvoice($fixture['request']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
         $this->assertTrue($response['valid']);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, '/v1/validation/invoice'));
     }
 
     #[Test]
     public function it_checks_compliance_with_default_specification(): void
     {
         /* Arrange */
-        $xmlContent = '<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"/>';
-        $expectedResponse = [
-            'compliant' => true,
-            'specification' => 'bis3',
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, '/v1/validation/compliance', [
-                'xml' => $xmlContent,
-                'specification' => 'bis3',
-            ])
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('letspeppol', 'compliance_check.compliant_default');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->checkCompliance($xmlContent);
+        $response = $this->endpoint->checkCompliance($fixture['xml']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
         $this->assertTrue($response['compliant']);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, '/v1/validation/compliance'));
     }
 
     #[Test]
     public function it_checks_compliance_with_custom_specification(): void
     {
         /* Arrange */
-        $xmlContent = '<Invoice/>';
-        $specification = 'peppol-bis-3.0';
-        
-        $expectedResponse = [
-            'compliant' => true,
-            'specification' => $specification,
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, '/v1/validation/compliance', [
-                'xml' => $xmlContent,
-                'specification' => $specification,
-            ])
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('letspeppol', 'compliance_check.compliant_custom');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->checkCompliance($xmlContent, $specification);
+        $response = $this->endpoint->checkCompliance($fixture['xml'], $fixture['specification']);
 
         /* Assert */
-        $this->assertEquals($specification, $response['specification']);
+        $this->assertEquals($fixture['specification'], $response['specification']);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, '/v1/validation/compliance'));
     }
 
     #[Test]
     public function it_returns_validation_errors(): void
     {
         /* Arrange */
-        $invoiceData = ['document' => '<InvalidInvoice/>'];
-        $expectedResponse = [
-            'valid' => false,
-            'errors' => ['Missing required field: InvoiceNumber'],
-            'warnings' => ['Optional field missing: PaymentMeans'],
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, '/v1/validation/invoice', $invoiceData)
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('letspeppol', 'validation.invalid_invoice');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->validateInvoice($invoiceData);
+        $response = $this->endpoint->validateInvoice($fixture['request']);
 
         /* Assert */
         $this->assertFalse($response['valid']);
         $this->assertNotEmpty($response['errors']);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, '/v1/validation/invoice'));
     }
 
     #[Test]
     public function it_returns_compliance_violations(): void
     {
         /* Arrange */
-        $xmlContent = '<Invoice/>';
-        $expectedResponse = [
-            'compliant' => false,
-            'violations' => ['Invalid document structure'],
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::POST->value, '/v1/validation/compliance', Mockery::any())
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('letspeppol', 'compliance_check.non_compliant');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->checkCompliance($xmlContent);
+        $response = $this->endpoint->checkCompliance($fixture['xml']);
 
         /* Assert */
         $this->assertFalse($response['compliant']);
         $this->assertNotEmpty($response['violations']);
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::POST->value, '/v1/validation/compliance'));
     }
 }

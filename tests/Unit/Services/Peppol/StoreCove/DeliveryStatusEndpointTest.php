@@ -4,147 +4,97 @@ namespace Tests\Unit\Services\Peppol\StoreCove;
 
 use App\Enums\HttpMethod;
 use App\Services\Peppol\StoreCove\DeliveryStatusEndpoint;
-use App\Services\Peppol\StoreCoveClient;
-use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Tests\Fakes\FakeStoreCoveClient;
+use Tests\PeppolTestCase;
 
 #[CoversClass(DeliveryStatusEndpoint::class)]
-class DeliveryStatusEndpointTest extends TestCase
+class DeliveryStatusEndpointTest extends PeppolTestCase
 {
-    private StoreCoveClient $mockClient;
+    private FakeStoreCoveClient $fakeClient;
     private DeliveryStatusEndpoint $endpoint;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->mockClient = Mockery::mock(StoreCoveClient::class);
-        $this->endpoint = new DeliveryStatusEndpoint($this->mockClient);
+        $this->fakeClient = new FakeStoreCoveClient();
+        $this->endpoint = new DeliveryStatusEndpoint($this->fakeClient);
     }
 
     #[Test]
     public function it_gets_delivery_status(): void
     {
         /* Arrange */
-        $documentId = 'doc-123';
-        $expectedResponse = [
-            'status' => 'delivered',
-            'delivered_at' => '2024-01-15T10:30:00Z',
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/api/v2/document_submissions/{$documentId}/delivery_status")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('storecove', 'delivery_status.delivered');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->getDeliveryStatus($documentId);
+        $response = $this->endpoint->getDeliveryStatus($fixture['document_id']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/api/v2/document_submissions/{$fixture['document_id']}/delivery_status"));
     }
 
     #[Test]
     public function it_gets_delivery_history(): void
     {
         /* Arrange */
-        $documentId = 'doc-456';
-        $expectedResponse = [
-            [
-                'event' => 'submitted',
-                'timestamp' => '2024-01-15T09:00:00Z',
-            ],
-            [
-                'event' => 'delivered',
-                'timestamp' => '2024-01-15T10:30:00Z',
-            ],
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/api/v2/document_submissions/{$documentId}/delivery_history")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('storecove', 'delivery_history');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->getDeliveryHistory($documentId);
+        $response = $this->endpoint->getDeliveryHistory($fixture['document_id']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/api/v2/document_submissions/{$fixture['document_id']}/delivery_history"));
     }
 
     #[Test]
     public function it_checks_recipient_acknowledgment(): void
     {
         /* Arrange */
-        $documentId = 'doc-789';
-        $expectedResponse = [
-            'acknowledged' => true,
-            'acknowledged_at' => '2024-01-15T11:00:00Z',
-            'acknowledgment_type' => 'read',
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/api/v2/document_submissions/{$documentId}/acknowledgment")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('storecove', 'recipient_acknowledgment.acknowledged');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->checkRecipientAcknowledgment($documentId);
+        $response = $this->endpoint->checkRecipientAcknowledgment($fixture['document_id']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/api/v2/document_submissions/{$fixture['document_id']}/acknowledgment"));
     }
 
     #[Test]
     public function it_handles_pending_delivery_status(): void
     {
         /* Arrange */
-        $documentId = 'doc-pending';
-        $expectedResponse = [
-            'status' => 'pending',
-            'last_updated' => '2024-01-15T09:15:00Z',
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/api/v2/document_submissions/{$documentId}/delivery_status")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('storecove', 'delivery_status.pending');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->getDeliveryStatus($documentId);
+        $response = $this->endpoint->getDeliveryStatus($fixture['document_id']);
 
         /* Assert */
         $this->assertEquals('pending', $response['status']);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/api/v2/document_submissions/{$fixture['document_id']}/delivery_status"));
     }
 
     #[Test]
     public function it_handles_failed_delivery_status(): void
     {
         /* Arrange */
-        $documentId = 'doc-failed';
-        $expectedResponse = [
-            'status' => 'failed',
-            'error' => 'Recipient not found',
-            'failed_at' => '2024-01-15T10:00:00Z',
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/api/v2/document_submissions/{$documentId}/delivery_status")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('storecove', 'delivery_status.failed');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->getDeliveryStatus($documentId);
+        $response = $this->endpoint->getDeliveryStatus($fixture['document_id']);
 
         /* Assert */
         $this->assertEquals('failed', $response['status']);
         $this->assertEquals('Recipient not found', $response['error']);
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/api/v2/document_submissions/{$fixture['document_id']}/delivery_status"));
     }
 }

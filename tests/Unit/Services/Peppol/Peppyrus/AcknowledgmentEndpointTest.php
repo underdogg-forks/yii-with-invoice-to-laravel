@@ -4,125 +4,84 @@ namespace Tests\Unit\Services\Peppol\Peppyrus;
 
 use App\Enums\HttpMethod;
 use App\Services\Peppol\Peppyrus\AcknowledgmentEndpoint;
-use App\Services\Peppol\PeppyrusClient;
-use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Tests\Fakes\FakePeppyrusClient;
+use Tests\PeppolTestCase;
 
 #[CoversClass(AcknowledgmentEndpoint::class)]
-class AcknowledgmentEndpointTest extends TestCase
+class AcknowledgmentEndpointTest extends PeppolTestCase
 {
-    private PeppyrusClient $mockClient;
+    private FakePeppyrusClient $fakeClient;
     private AcknowledgmentEndpoint $endpoint;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->mockClient = Mockery::mock(PeppyrusClient::class);
-        $this->endpoint = new AcknowledgmentEndpoint($this->mockClient);
+        $this->fakeClient = new FakePeppyrusClient();
+        $this->endpoint = new AcknowledgmentEndpoint($this->fakeClient);
     }
 
     #[Test]
     public function it_gets_acknowledgment(): void
     {
         /* Arrange */
-        $transmissionId = 'trans-123';
-        $expectedResponse = [
-            'transmission_id' => $transmissionId,
-            'acknowledged' => true,
-            'acknowledged_at' => '2024-01-15T11:00:00Z',
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/api/transmissions/{$transmissionId}/acknowledgment")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('peppyrus', 'acknowledgment.acknowledged');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->getAcknowledgment($transmissionId);
+        $response = $this->endpoint->getAcknowledgment($fixture['transmission_id']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
         $this->assertTrue($response['acknowledged']);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/api/transmissions/{$fixture['transmission_id']}/acknowledgment"));
     }
 
     #[Test]
     public function it_gets_acknowledgment_details(): void
     {
         /* Arrange */
-        $acknowledgmentId = 'ack-456';
-        $expectedResponse = [
-            'acknowledgment_id' => $acknowledgmentId,
-            'status' => 'received',
-            'type' => 'business_acknowledgment',
-            'details' => ['message' => 'Invoice accepted'],
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/api/acknowledgments/{$acknowledgmentId}")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('peppyrus', 'acknowledgment_details.received');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->getAcknowledgmentDetails($acknowledgmentId);
+        $response = $this->endpoint->getAcknowledgmentDetails($fixture['acknowledgment_id']);
 
         /* Assert */
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($fixture['response'], $response);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/api/acknowledgments/{$fixture['acknowledgment_id']}"));
     }
 
     #[Test]
     public function it_handles_pending_acknowledgment(): void
     {
         /* Arrange */
-        $transmissionId = 'trans-pending';
-        $expectedResponse = [
-            'transmission_id' => $transmissionId,
-            'acknowledged' => false,
-            'status' => 'pending',
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/api/transmissions/{$transmissionId}/acknowledgment")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('peppyrus', 'acknowledgment.pending');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->getAcknowledgment($transmissionId);
+        $response = $this->endpoint->getAcknowledgment($fixture['transmission_id']);
 
         /* Assert */
         $this->assertFalse($response['acknowledged']);
         $this->assertEquals('pending', $response['status']);
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/api/transmissions/{$fixture['transmission_id']}/acknowledgment"));
     }
 
     #[Test]
     public function it_handles_negative_acknowledgment(): void
     {
         /* Arrange */
-        $acknowledgmentId = 'ack-negative';
-        $expectedResponse = [
-            'acknowledgment_id' => $acknowledgmentId,
-            'status' => 'rejected',
-            'type' => 'business_acknowledgment',
-            'reason' => 'Invalid invoice data',
-        ];
-        
-        $this->mockClient->shouldReceive('request')
-            ->once()
-            ->with(HttpMethod::GET->value, "/api/acknowledgments/{$acknowledgmentId}")
-            ->andReturn($expectedResponse);
+        $fixture = $this->loadFixture('peppyrus', 'acknowledgment_details.rejected');
+        $this->fakeClient->addResponse($fixture['response']);
 
         /* Act */
-        $response = $this->endpoint->getAcknowledgmentDetails($acknowledgmentId);
+        $response = $this->endpoint->getAcknowledgmentDetails($fixture['acknowledgment_id']);
 
         /* Assert */
         $this->assertEquals('rejected', $response['status']);
         $this->assertNotEmpty($response['reason']);
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
+        $this->assertTrue($this->fakeClient->hasRequest(HttpMethod::GET->value, "/api/acknowledgments/{$fixture['acknowledgment_id']}"));
     }
 }
