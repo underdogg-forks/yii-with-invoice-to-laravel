@@ -10,6 +10,7 @@ use App\Models\Quote;
 use App\Models\SalesOrder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use PHPUnit\Framework\Attributes\Test;
 use Mockery;
 
 class EmailServiceTest extends TestCase
@@ -29,102 +30,115 @@ class EmailServiceTest extends TestCase
         Mail::fake();
     }
 
-    public function it_sends_invoice_email_with_pdf(): void
+    #[Test]
+    public function it_sends_invoice_email_with_attached_pdf(): void
     {
-        // Arrange
+        /* Arrange */
         $invoice = Invoice::factory()->create();
         $this->pdfServiceMock->shouldReceive('generateInvoicePdf')
             ->once()
             ->with($invoice)
             ->andReturn('pdf-content');
 
-        // Act
+        /* Act */
         $result = $this->emailService->sendInvoice($invoice);
 
-        // Assert
+        /* Assert */
         $this->assertTrue($result);
         Mail::assertSent(\Illuminate\Mail\Mailable::class);
     }
 
-    public function it_sends_quote_email_with_pdf(): void
+    #[Test]
+    public function it_sends_quote_email_with_attached_pdf(): void
     {
-        // Arrange
+        /* Arrange */
         $quote = Quote::factory()->create();
         $this->pdfServiceMock->shouldReceive('generateQuotePdf')
             ->once()
             ->with($quote)
             ->andReturn('pdf-content');
 
-        // Act
+        /* Act */
         $result = $this->emailService->sendQuote($quote);
 
-        // Assert
+        /* Assert */
         $this->assertTrue($result);
         Mail::assertSent(\Illuminate\Mail\Mailable::class);
     }
 
-    public function it_sends_sales_order_email_with_pdf(): void
+    #[Test]
+    public function it_sends_sales_order_email_with_attached_pdf(): void
     {
-        // Arrange
+        /* Arrange */
         $salesOrder = SalesOrder::factory()->create();
         $this->pdfServiceMock->shouldReceive('generateSalesOrderPdf')
             ->once()
             ->with($salesOrder)
             ->andReturn('pdf-content');
 
-        // Act
+        /* Act */
         $result = $this->emailService->sendSalesOrder($salesOrder);
 
-        // Assert
+        /* Assert */
         $this->assertTrue($result);
         Mail::assertSent(\Illuminate\Mail\Mailable::class);
     }
 
-    public function it_uses_custom_email_address(): void
+    #[Test]
+    public function it_allows_custom_recipient_email_address(): void
     {
-        // Arrange
+        /* Arrange */
         $invoice = Invoice::factory()->create();
         $customEmail = 'custom@example.com';
         $this->pdfServiceMock->shouldReceive('generateInvoicePdf')
             ->once()
             ->andReturn('pdf-content');
 
-        // Act
+        /* Act */
         $result = $this->emailService->sendInvoice($invoice, ['to' => $customEmail]);
 
-        // Assert
+        /* Assert */
         $this->assertTrue($result);
+        Mail::assertSent(function ($mailable) use ($customEmail) {
+            return $mailable->hasTo($customEmail);
+        });
     }
 
-    public function it_uses_custom_subject(): void
+    #[Test]
+    public function it_allows_custom_email_subject(): void
     {
-        // Arrange
+        /* Arrange */
         $invoice = Invoice::factory()->create();
         $customSubject = 'Custom Subject';
         $this->pdfServiceMock->shouldReceive('generateInvoicePdf')
             ->once()
             ->andReturn('pdf-content');
 
-        // Act
+        /* Act */
         $result = $this->emailService->sendInvoice($invoice, ['subject' => $customSubject]);
 
-        // Assert
+        /* Assert */
         $this->assertTrue($result);
+        Mail::assertSent(function ($mailable) use ($customSubject) {
+            return $mailable->subject === $customSubject;
+        });
     }
 
-    public function it_handles_email_send_failure(): void
+    #[Test]
+    public function it_handles_email_send_failure_gracefully(): void
     {
-        // Arrange
+        /* Arrange */
         $invoice = Invoice::factory()->create();
         $this->pdfServiceMock->shouldReceive('generateInvoicePdf')
             ->once()
             ->andThrow(new \Exception('PDF generation failed'));
 
-        // Act
+        /* Act */
         $result = $this->emailService->sendInvoice($invoice);
 
-        // Assert
-        $this->assertFalse($result);
+        /* Assert */
+        $this->assertFalse($result, 'Email service should return false when PDF generation fails');
+        Mail::assertNothingSent();
     }
 
     protected function tearDown(): void

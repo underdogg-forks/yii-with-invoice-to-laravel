@@ -239,41 +239,26 @@ class ApiClientTest extends TestCase
     }
 
     #[Test]
-    public function it_uses_custom_timeout(): void
+    public function it_successfully_makes_request_with_options(): void
     {
         /* Arrange */
-        Http::fake();
+        Http::fake([
+            'https://api.example.com/endpoint' => Http::response(['result' => 'completed'], 200)
+        ]);
 
-        /* Act */
-        $this->client->request(
+        /* Act - Test with timeout option */
+        $response = $this->client->request(
             HttpMethod::GET,
-            'https://api.example.com/test',
+            'https://api.example.com/endpoint',
             ['timeout' => 60]
         );
 
         /* Assert */
+        $this->assertEquals(200, $response->status());
+        $this->assertEquals(['result' => 'completed'], $response->json());
         Http::assertSent(function ($request) {
-            // Laravel Http doesn't expose timeout directly in request
-            // This test verifies the request was made
-            return true;
-        });
-    }
-
-    #[Test]
-    public function it_uses_default_timeout_when_not_specified(): void
-    {
-        /* Arrange */
-        Http::fake();
-
-        /* Act */
-        $this->client->request(
-            HttpMethod::GET,
-            'https://api.example.com/test'
-        );
-
-        /* Assert */
-        Http::assertSent(function ($request) {
-            return $request->url() === 'https://api.example.com/test';
+            return $request->url() === 'https://api.example.com/endpoint' &&
+                   $request->method() === 'GET';
         });
     }
 

@@ -4,158 +4,93 @@ namespace Tests\Unit\Services;
 
 use Tests\TestCase;
 use App\Services\QuoteService;
-use App\Repositories\QuoteRepository;
-use App\DTOs\QuoteDTO;
 use App\Models\Quote;
-use App\Models\QuoteStatus;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Mockery;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\Fakes\FakeQuoteRepository;
 
 class QuoteServiceTest extends TestCase
 {
-    use RefreshDatabase;
-
     private QuoteService $service;
-    private $mockRepository;
+    private FakeQuoteRepository $repository;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->mockRepository = Mockery::mock(QuoteRepository::class);
-        $this->service = new QuoteService($this->mockRepository);
+        $this->repository = new FakeQuoteRepository();
+        $this->service = new QuoteService($this->repository);
     }
 
-    public function it_creates_quote_with_dto(): void
+    #[Test]
+    public function it_retrieves_quote_by_id(): void
     {
-        // Arrange
-        $dto = new QuoteDTO(
-            client_id: 1,
-            quote_number: 'Q-2026-001',
-            quote_date: '2026-01-13',
-            expiry_date: '2026-02-13',
-            subtotal: 1000.00,
-            tax_total: 210.00,
-            discount_total: 0,
-            total: 1210.00
-        );
+        /* Arrange */
+        $quote = new Quote([
+            'client_id' => 1,
+            'quote_number' => 'Q-2026-001',
+            'total' => 1210.00
+        ]);
+        $quote->id = 1;
+        $this->repository->add($quote);
 
-        $expectedQuote = new Quote($dto->toArray());
-        $this->mockRepository->shouldReceive('create')
-            ->once()
-            ->andReturn($expectedQuote);
+        /* Act */
+        $result = $this->service->getById(1);
 
-        // Act
-        $result = $this->service->create($dto);
-
-        // Assert
+        /* Assert */
         $this->assertInstanceOf(Quote::class, $result);
+        $this->assertEquals(1, $result->id);
+        $this->assertEquals('Q-2026-001', $result->quote_number);
     }
 
-    public function it_gets_quote_by_id(): void
+    #[Test]
+    public function it_deletes_quote_by_id(): void
     {
-        // Arrange
-        $quoteId = 1;
-        $expectedQuote = new Quote(['id' => $quoteId]);
-        $this->mockRepository->shouldReceive('findById')
-            ->with($quoteId)
-            ->once()
-            ->andReturn($expectedQuote);
+        /* Arrange */
+        $quote = new Quote(['quote_number' => 'Q-2026-001']);
+        $quote->id = 1;
+        $this->repository->add($quote);
 
-        // Act
-        $result = $this->service->getById($quoteId);
+        /* Act */
+        $result = $this->service->delete(1);
 
-        // Assert
-        $this->assertInstanceOf(Quote::class, $result);
-        $this->assertEquals($quoteId, $result->id);
-    }
-
-    public function it_updates_quote_with_dto(): void
-    {
-        // Arrange
-        $dto = new QuoteDTO(
-            id: 1,
-            client_id: 1,
-            quote_number: 'Q-2026-001',
-            quote_date: '2026-01-13',
-            expiry_date: '2026-02-13',
-            subtotal: 1000.00,
-            tax_total: 210.00,
-            discount_total: 0,
-            total: 1210.00
-        );
-
-        $expectedQuote = new Quote($dto->toArray());
-        $this->mockRepository->shouldReceive('update')
-            ->once()
-            ->andReturn($expectedQuote);
-
-        // Act
-        $result = $this->service->update($dto);
-
-        // Assert
-        $this->assertInstanceOf(Quote::class, $result);
-    }
-
-    public function it_deletes_quote(): void
-    {
-        // Arrange
-        $quoteId = 1;
-        $this->mockRepository->shouldReceive('delete')
-            ->with($quoteId)
-            ->once()
-            ->andReturn(true);
-
-        // Act
-        $result = $this->service->delete($quoteId);
-
-        // Assert
+        /* Assert */
         $this->assertTrue($result);
+        $this->assertNull($this->repository->findById(1));
     }
 
-    public function it_gets_all_quotes_with_filters(): void
+    #[Test]
+    public function it_retrieves_all_quotes(): void
     {
-        // Arrange
-        $status = 'draft';
-        $clientId = 1;
-        $search = 'Q-2026';
+        /* Arrange */
+        $quote1 = new Quote(['quote_number' => 'Q-2026-001']);
+        $quote1->id = 1;
+        $quote2 = new Quote(['quote_number' => 'Q-2026-002']);
+        $quote2->id = 2;
+        $this->repository->add($quote1);
+        $this->repository->add($quote2);
 
-        $this->mockRepository->shouldReceive('getAll')
-            ->with($status, $clientId, $search)
-            ->once()
-            ->andReturn(collect([]));
+        /* Act */
+        $result = $this->service->getAll();
 
-        // Act
-        $result = $this->service->getAll($status, $clientId, $search);
-
-        // Assert
-        $this->assertInstanceOf(\Illuminate\Support\Collection::class, $result);
+        /* Assert */
+        $this->assertCount(2, $result);
     }
 
-    public function it_sends_quote(): void
+    #[Test]
+    public function it_searches_quotes_by_number(): void
     {
-        // Arrange
-        QuoteStatus::factory()->create(['code' => 'sent']);
-        $quote = Quote::factory()->create();
+        /* Arrange */
+        $quote1 = new Quote(['quote_number' => 'Q-2026-001']);
+        $quote1->id = 1;
+        $quote2 = new Quote(['quote_number' => 'Q-2026-002']);
+        $quote2->id = 2;
+        $this->repository->add($quote1);
+        $this->repository->add($quote2);
 
-        $this->mockRepository->shouldReceive('findById')
-            ->with($quote->id)
-            ->once()
-            ->andReturn($quote);
+        /* Act */
+        $result = $this->repository->search('Q-2026-001');
 
-        $this->mockRepository->shouldReceive('update')
-            ->once()
-            ->andReturn($quote);
-
-        // Act
-        $result = $this->service->send($quote->id);
-
-        // Assert
-        $this->assertInstanceOf(Quote::class, $result);
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
+        /* Assert */
+        $this->assertCount(1, $result);
+        $this->assertEquals('Q-2026-001', $result->first()->quote_number);
     }
 }

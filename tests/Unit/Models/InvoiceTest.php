@@ -5,74 +5,77 @@ namespace Tests\Unit\Models;
 use Tests\TestCase;
 use App\Models\Invoice;
 use App\Models\Client;
-use App\Models\InvoiceStatus;
 use App\Models\InvoiceNumbering;
+use App\Enums\InvoiceStatusEnum;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 
 class InvoiceTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[Test]
     public function it_belongs_to_client(): void
     {
-        // Arrange
+        /* Arrange */
         $client = Client::factory()->create();
         $invoice = Invoice::factory()->create(['client_id' => $client->id]);
 
-        // Act
+        /* Act */
         $result = $invoice->client;
 
-        // Assert
+        /* Assert */
         $this->assertInstanceOf(Client::class, $result);
         $this->assertEquals($client->id, $result->id);
     }
 
-    public function it_belongs_to_status(): void
+    #[Test]
+    public function it_has_status_as_enum(): void
     {
-        // Arrange
-        $status = InvoiceStatus::factory()->create();
-        $invoice = Invoice::factory()->create(['status_id' => $status->id]);
+        /* Arrange & Act */
+        $invoice = Invoice::factory()->create(['status' => InvoiceStatusEnum::PAID]);
 
-        // Act
-        $result = $invoice->status;
-
-        // Assert
-        $this->assertInstanceOf(InvoiceStatus::class, $result);
-        $this->assertEquals($status->id, $result->id);
+        /* Assert */
+        $this->assertInstanceOf(InvoiceStatusEnum::class, $invoice->status);
+        $this->assertEquals(InvoiceStatusEnum::PAID, $invoice->status);
     }
 
+    #[Test]
     public function it_belongs_to_numbering(): void
     {
-        // Arrange
+        /* Arrange */
         $numbering = InvoiceNumbering::factory()->create();
         $invoice = Invoice::factory()->create(['numbering_id' => $numbering->id]);
 
-        // Act
+        /* Act */
         $result = $invoice->numbering;
 
-        // Assert
+        /* Assert */
         $this->assertInstanceOf(InvoiceNumbering::class, $result);
         $this->assertEquals($numbering->id, $result->id);
     }
 
+    #[Test]
     public function it_has_many_items(): void
     {
-        // Arrange
+        /* Arrange */
         $invoice = Invoice::factory()->create();
         $items = \App\Models\InvoiceItem::factory()->count(3)->create([
             'invoice_id' => $invoice->id
         ]);
 
-        // Act
+        /* Act */
         $result = $invoice->items;
 
-        // Assert
+        /* Assert */
         $this->assertCount(3, $result);
+        $this->assertEquals($items->pluck('id')->sort()->values(), $result->pluck('id')->sort()->values());
     }
 
+    #[Test]
     public function it_detects_overdue_invoices(): void
     {
-        // Arrange
+        /* Arrange */
         $overdueInvoice = Invoice::factory()->create([
             'date_due' => now()->subDays(5)->format('Y-m-d'),
         ]);
@@ -80,10 +83,10 @@ class InvoiceTest extends TestCase
             'date_due' => now()->addDays(5)->format('Y-m-d'),
         ]);
 
-        // Act
+        /* Act */
         $overdueInvoices = Invoice::overdue()->get();
 
-        // Assert
+        /* Assert */
         $this->assertTrue($overdueInvoices->contains($overdueInvoice));
         $this->assertFalse($overdueInvoices->contains($currentInvoice));
     }
