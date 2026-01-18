@@ -103,6 +103,15 @@ class Invoice extends Model
     |--------------------------------------------------------------------------
     */
 
+    /**
+     * Scope a query to only include overdue invoices.
+     */
+    public function scopeOverdue($query)
+    {
+        return $query->where('date_due', '<', now())
+                     ->where('status', '!=', InvoiceStatusEnum::PAID->value);
+    }
+
     #endregion
 
     #region Custom Methods

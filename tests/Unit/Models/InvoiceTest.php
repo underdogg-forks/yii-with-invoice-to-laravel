@@ -5,8 +5,8 @@ namespace Tests\Unit\Models;
 use Tests\TestCase;
 use App\Models\Invoice;
 use App\Models\Client;
-use App\Models\InvoiceStatus;
 use App\Models\InvoiceNumbering;
+use App\Enums\InvoiceStatusEnum;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -30,18 +30,14 @@ class InvoiceTest extends TestCase
     }
 
     #[Test]
-    public function it_belongs_to_status(): void
+    public function it_has_status_as_enum(): void
     {
-        /* Arrange */
-        $status = InvoiceStatus::factory()->create();
-        $invoice = Invoice::factory()->create(['status_id' => $status->id]);
-
-        /* Act */
-        $result = $invoice->status;
+        /* Arrange & Act */
+        $invoice = Invoice::factory()->create(['status' => InvoiceStatusEnum::PAID]);
 
         /* Assert */
-        $this->assertInstanceOf(InvoiceStatus::class, $result);
-        $this->assertEquals($status->id, $result->id);
+        $this->assertInstanceOf(InvoiceStatusEnum::class, $invoice->status);
+        $this->assertEquals(InvoiceStatusEnum::PAID, $invoice->status);
     }
 
     #[Test]

@@ -14,11 +14,13 @@ trait MocksRepositories
     /**
      * Create a repository mock that expects a create call.
      */
-    protected function mockRepositoryCreate(MockInterface $repository, object $model): void
+    protected function mockRepositoryCreate(MockInterface $repository, object $model, ?array $expectedPayload = null): void
     {
-        $repository->shouldReceive('create')
-            ->once()
-            ->andReturn($model);
+        $expectation = $repository->shouldReceive('create')->once();
+        if ($expectedPayload !== null) {
+            $expectation->with($expectedPayload);
+        }
+        $expectation->andReturn($model);
     }
 
     /**
@@ -35,11 +37,13 @@ trait MocksRepositories
     /**
      * Create a repository mock that expects an update call.
      */
-    protected function mockRepositoryUpdate(MockInterface $repository, object $model): void
+    protected function mockRepositoryUpdate(MockInterface $repository, object $model, ?array $expectedPayload = null): void
     {
-        $repository->shouldReceive('update')
-            ->once()
-            ->andReturn($model);
+        $expectation = $repository->shouldReceive('update')->once();
+        if ($expectedPayload !== null) {
+            $expectation->with($expectedPayload);
+        }
+        $expectation->andReturn($model);
     }
 
     /**

@@ -114,8 +114,10 @@ class InvoiceServiceTest extends TestCase
     public function it_retrieves_all_invoices(): void
     {
         /* Arrange */
-        $invoice1 = new Invoice(['id' => 1]);
-        $invoice2 = new Invoice(['id' => 2]);
+        $invoice1 = new Invoice();
+        $invoice1->id = 1;
+        $invoice2 = new Invoice();
+        $invoice2->id = 2;
         $invoices = collect([$invoice1, $invoice2]);
         
         $this->repositoryMock

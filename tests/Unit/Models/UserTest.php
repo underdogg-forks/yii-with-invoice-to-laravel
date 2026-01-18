@@ -116,9 +116,13 @@ class UserTest extends TestCase
         $userWithout2FA = User::factory()->create();
         $userWith2FA = User::factory()->withTwoFactor()->create();
 
+        /* Act */
+        $without2FAEnabled = $userWithout2FA->hasTwoFactorEnabled();
+        $with2FAEnabled = $userWith2FA->hasTwoFactorEnabled();
+
         /* Assert */
-        $this->assertFalse($userWithout2FA->hasTwoFactorEnabled());
-        $this->assertTrue($userWith2FA->hasTwoFactorEnabled());
+        $this->assertFalse($without2FAEnabled);
+        $this->assertTrue($with2FAEnabled);
     }
 
     #[Test]

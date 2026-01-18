@@ -99,6 +99,9 @@ class EmailServiceTest extends TestCase
 
         /* Assert */
         $this->assertTrue($result);
+        Mail::assertSent(function ($mailable) use ($customEmail) {
+            return $mailable->hasTo($customEmail);
+        });
     }
 
     #[Test]
@@ -116,6 +119,9 @@ class EmailServiceTest extends TestCase
 
         /* Assert */
         $this->assertTrue($result);
+        Mail::assertSent(function ($mailable) use ($customSubject) {
+            return $mailable->subject === $customSubject;
+        });
     }
 
     #[Test]
@@ -132,6 +138,7 @@ class EmailServiceTest extends TestCase
 
         /* Assert */
         $this->assertFalse($result, 'Email service should return false when PDF generation fails');
+        Mail::assertNothingSent();
     }
 
     protected function tearDown(): void

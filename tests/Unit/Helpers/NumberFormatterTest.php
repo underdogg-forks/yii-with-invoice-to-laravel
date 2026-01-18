@@ -28,8 +28,8 @@ class NumberFormatterTest extends TestCase
 
         /* Assert */
         $this->assertIsString($result);
-        // The result should be "1,234.57" or "1.234,57" depending on locale
-        $this->assertMatchesRegularExpression('/1[.,]234[.,]57/', $result);
+        // The result should be exactly "1,234.57" or "1.234,57" depending on locale
+        $this->assertMatchesRegularExpression('/^(1,234\.57|1\.234,57)$/', $result);
     }
 
     #[Test]
