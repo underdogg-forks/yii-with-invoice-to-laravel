@@ -22,8 +22,8 @@ on:
       - 'phpunit.xml.dist'
       - 'psalm.xml'
 
-  schedule:
-    - cron: '0 0 * * *'
+  # schedule:
+    # - cron: '0 0 * * *'
 
 name: invoice dependency checker
 
