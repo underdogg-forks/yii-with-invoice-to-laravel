@@ -23,8 +23,8 @@ on:
       - 'infection.json.dist'
       - 'phpunit.xml.dist'
 
-  schedule:
-    - cron: '0 0 * * *'
+  # schedule:
+    # - cron: '0 0 * * *'
 
 name: invoice static analysis
 
